@@ -8,9 +8,6 @@
     <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
-    <!-- Leaflet Routing Machine -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css">
-
     <link rel="stylesheet" href="style2.css">
 </head>
 <body>
@@ -31,8 +28,8 @@
         </section>
 
         <section class="card">
-            <h2>🗺️ Mapa</h2>
-            <div id="map" style="height: 260px; border-radius: 10px;"></div>
+            <h2>🗺️ Mapa i ruch drogowy</h2>
+            <div id="map" style="height:260px; border-radius:10px; overflow:hidden;"></div>
         </section>
 
         <section class="card">
@@ -52,16 +49,16 @@
             <h2>Witaj! Ustaw swoje miejsca</h2>
 
             <label>Dom</label>
-            <input id="homeAddress" type="text">
+            <input id="homeAddress" type="text" placeholder="np. Nikolausstraße 7, Geroldshausen">
 
             <label>Praca</label>
-            <input id="workAddress" type="text">
+            <input id="workAddress" type="text" placeholder="np. Baumhofstraße 40, Marktheidenfeld">
 
             <label>Miejsce 1</label>
-            <input id="fav1" type="text">
+            <input id="fav1" type="text" placeholder="np. siłownia, sklep">
 
             <label>Miejsce 2</label>
-            <input id="fav2" type="text">
+            <input id="fav2" type="text" placeholder="np. rodzina, ulubione miejsce">
 
             <button id="saveUserData">Zapisz</button>
         </div>
@@ -70,9 +67,6 @@
     <!-- Leaflet -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-    <!-- Routing -->
-    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-
     <script src="app.js"></script>
 </body>
-</html> 
+</html>
