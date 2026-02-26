@@ -5,9 +5,7 @@
     <title>Nesky Assistant</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-
     <link rel="stylesheet" href="style2.css">
 </head>
 <body>
@@ -35,6 +33,7 @@
         <section class="card">
             <h2>🧭 Nawigacja</h2>
             <div id="navControls">Ładowanie...</div>
+            <button id="editPlaces" class="edit-btn">Edytuj miejsca ✏️</button>
         </section>
 
         <section class="card">
@@ -43,10 +42,10 @@
         </section>
     </div>
 
-    <!-- Onboarding -->
+    <!-- ONBOARDING MODAL -->
     <div id="onboardingModal" class="modal">
         <div class="modal-content">
-            <h2>Witaj! Ustaw swoje miejsca</h2>
+            <h2>Ustaw swoje miejsca</h2>
 
             <label>Dom</label>
             <input id="homeAddress" type="text" placeholder="np. Nikolausstraße 7, Geroldshausen">
@@ -64,9 +63,7 @@
         </div>
     </div>
 
-    <!-- Leaflet -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
     <script src="app.js"></script>
 </body>
-</html>
+</html> 
