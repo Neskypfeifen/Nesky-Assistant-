@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Nesky Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style2.css">
+</head>
+<body>
+    <div class="app">
+        <header class="app-header">
+            <h1>Nesky Assistant</h1>
+            <button id="themeToggle" class="theme-toggle">🌙</button>
+        </header>
+
+        <section class="search-section">
+            <input id="searchInput" type="text" placeholder="Szukaj w Google...">
+            <button onclick="searchGoogle()">🔍</button>
+        </section>
+
+        <section class="card">
+            <h2>🌤 Pogoda</h2>
+            <div id="weather">Ładowanie danych...</div>
+        </section>
+
+        <section class="card">
+            <h2>🚗 Mapa i ruch drogowy</h2>
+            <div id="mapContainer">Ładowanie mapy...</div>
+        </section>
+
+        <section class="card">
+            <h2>🧭 Nawigacja</h2>
+            <div id="navControls">
+                Ładowanie nawigacji...
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>📅 Nadchodzące wydarzenia</h2>
+            <p>Integracja z kalendarzem – w przygotowaniu.</p>
+        </section>
+    </div>
+
+    <!-- Onboarding -->
+    <div id="onboardingModal" class="modal">
+        <div class="modal-content">
+            <h2>Witaj! Ustaw swoje miejsca</h2>
+            <label>Dom</label>
+            <input id="homeAddress" type="text" placeholder="np. Nikolausstraße 7, Geroldshausen">
+
+            <label>Praca</label>
+            <input id="workAddress" type="text" placeholder="np. Baumhofstraße 40, Marktheidenfeld">
+
+            <label>Miejsce 1</label>
+            <input id="fav1" type="text" placeholder="np. siłownia, sklep">
+
+            <label>Miejsce 2</label>
+            <input id="fav2" type="text" placeholder="np. rodzina, ulubione miejsce">
+
+            <button id="saveUserData">Zapisz</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
