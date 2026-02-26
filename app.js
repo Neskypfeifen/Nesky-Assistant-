@@ -1,166 +1,169 @@
-// 🔧 Klucz API pogody
+// 🔧 Pogoda
 const API_KEY = "b29b1069f8cdd5ddc69d6fcc9592c4a1";
 
 // 🌙 Tryb jasny/ciemny
-const themeToggle = document.getElementById("themeToggle");
-themeToggle.addEventListener("click", () => {
+document.getElementById("themeToggle").onclick = () => {
     document.body.classList.toggle("dark");
-    themeToggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
-});
+    document.getElementById("themeToggle").textContent =
+        document.body.classList.contains("dark") ? "☀️" : "🌙";
 
-// 🔍 Wyszukiwanie Google
+    updateMapStyle();
+};
+
+// 🔍 Google Search
 function searchGoogle() {
-    const query = document.getElementById("searchInput").value;
-    if (query.trim() !== "") {
-        window.open("https://www.google.com/search?q=" + encodeURIComponent(query));
-    }
+    const q = document.getElementById("searchInput").value;
+    if (q.trim()) window.open("https://www.google.com/search?q=" + encodeURIComponent(q));
 }
 
 // 🌤 Pogoda
 function loadWeather(lat, lon) {
-    const url =
-        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pl`;
-
-    fetch(url)
+    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pl`)
         .then(r => r.json())
-        .then(data => {
-            const temp = Math.round(data.main.temp);
-            const desc = data.weather[0].description;
-            const icon = data.weather[0].icon;
-
+        .then(d => {
             document.getElementById("weather").innerHTML = `
-                <img src="https://openweathermap.org/img/wn/${icon}@2x.png">
-                <strong>${temp}°C</strong> – ${desc}
+                <img src="https://openweathermap.org/img/wn/${d.weather[0].icon}@2x.png">
+                <strong>${Math.round(d.main.temp)}°C</strong> – ${d.weather[0].description}
             `;
-        })
-        .catch(() => {
-            document.getElementById("weather").textContent = "Błąd pobierania pogody.";
         });
 }
 
-// 🗺️ Próba załadowania mapy (z linkiem awaryjnym)
-function loadTrafficMap(lat, lon) {
-    const src = `https://www.bing.com/maps/embed?h=260&w=500&cp=${lat}~${lon}&lvl=12&typ=d&sty=r&trfc=1`;
+// 🗺️ Leaflet mapa
+let map;
+let tileLayer;
+let trafficLayer;
+let routingControl;
 
-    document.getElementById("mapContainer").innerHTML = `
-        <iframe
-            width="100%"
-            height="260"
-            style="border:0; border-radius:10px;"
-            src="${src}"
-            scrolling="no">
-        </iframe>
-        <p style="margin-top:8px; font-size:0.85rem; opacity:0.8;">
-            Jeśli mapa się nie wyświetla, możesz otworzyć ruch drogowy bezpośrednio:
-            <a href="https://www.bing.com/maps?cp=${lat}~${lon}&lvl=12&sty=r&trfc=1" target="_blank">Otwórz w Bing Maps</a>
-        </p>
-    `;
+function loadMap(lat, lon) {
+    map = L.map("map").setView([lat, lon], 13);
+
+    tileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19
+    }).addTo(map);
+
+    trafficLayer = L.tileLayer("https://tile-{s}.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
+        opacity: 0.6
+    }).addTo(map);
+
+    L.marker([lat, lon]).addTo(map).bindPopup("Tu jesteś").openPopup();
 }
 
-// 🧭 Nawigacja – zapisane miejsca + dowolny cel
+function updateMapStyle() {
+    if (!map) return;
+
+    map.removeLayer(tileLayer);
+
+    if (document.body.classList.contains("dark")) {
+        tileLayer = L.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png");
+    } else {
+        tileLayer = L.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png");
+    }
+
+    tileLayer.addTo(map);
+}
+
+// 🧭 Nawigacja
 function renderNavControls(user) {
     const container = document.getElementById("navControls");
 
     const places = [];
-
     if (user.home) places.push({ label: "Dom 🏠", value: user.home });
     if (user.work) places.push({ label: "Praca 💼", value: user.work });
     if (user.fav1) places.push({ label: "Miejsce 1 ⭐", value: user.fav1 });
     if (user.fav2) places.push({ label: "Miejsce 2 ⭐", value: user.fav2 });
 
-    let buttonsHtml = "";
+    let html = "";
 
-    if (places.length > 0) {
-        buttonsHtml += `<p style="margin-bottom:6px;">Szybka nawigacja:</p><div style="display:flex; flex-wrap:wrap; gap:6px;">`;
+    if (places.length) {
+        html += `<p>Szybka nawigacja:</p><div style="display:flex; flex-wrap:wrap; gap:6px;">`;
         for (const p of places) {
-            const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.value)}&travelmode=driving`;
-            buttonsHtml += `
-                <a href="${url}" target="_blank"
-                   style="flex:1; text-align:center; padding:8px 10px; border-radius:8px; background:#2563eb; color:white; text-decoration:none; font-size:0.9rem;">
+            html += `
+                <button class="nav-btn" data-target="${p.value}">
                     ${p.label}
-                </a>
+                </button>
             `;
         }
-        buttonsHtml += `</div>`;
+        html += `</div>`;
     }
 
-    const customNav = `
+    html += `
         <div style="margin-top:10px;">
-            <input id="navTarget" type="text" placeholder="Dokąd chcesz jechać?"
-                   style="width:100%; padding:9px 10px; border-radius:8px; border:1px solid #d1d5db;">
-            <button id="startNav"
-                    style="margin-top:8px; width:100%; padding:9px 10px; border-radius:8px; border:none; background:#16a34a; color:white; font-weight:600;">
-                Nawiguj z mojej lokalizacji 🚗
-            </button>
+            <input id="navTarget" type="text" placeholder="Dokąd chcesz jechać?">
+            <button id="startNav">Nawiguj 🚗</button>
         </div>
     `;
 
-    container.innerHTML = buttonsHtml + customNav;
+    container.innerHTML = html;
+
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.onclick = () => startRouting(btn.dataset.target);
+    });
 
     document.getElementById("startNav").onclick = () => {
         const target = document.getElementById("navTarget").value.trim();
-        if (!target) {
-            alert("Podaj cel podróży.");
-            return;
-        }
-        const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(target)}&travelmode=driving`;
-        window.open(url, "_blank");
+        if (!target) return alert("Podaj cel podróży.");
+        startRouting(target);
     };
 }
 
-// 🔵 ONBOARDING
+function startRouting(address) {
+    if (routingControl) map.removeControl(routingControl);
+
+    routingControl = L.Routing.control({
+        waypoints: [
+            L.latLng(currentLat, currentLon),
+            L.latLng(0, 0)
+        ],
+        router: L.Routing.osrmv1({
+            serviceUrl: "https://router.project-osrm.org/route/v1"
+        }),
+        geocoder: L.Control.Geocoder.nominatim(),
+        routeWhileDragging: false
+    }).addTo(map);
+
+    routingControl.spliceWaypoints(1, 1, address);
+}
+
+// 🔵 Onboarding
 function showOnboarding() {
     const modal = document.getElementById("onboardingModal");
     modal.style.display = "flex";
 
     document.getElementById("saveUserData").onclick = () => {
-        const userData = {
-            home: document.getElementById("homeAddress").value.trim(),
-            work: document.getElementById("workAddress").value.trim(),
-            fav1: document.getElementById("fav1").value.trim(),
-            fav2: document.getElementById("fav2").value.trim()
+        const user = {
+            home: homeAddress.value.trim(),
+            work: workAddress.value.trim(),
+            fav1: fav1.value.trim(),
+            fav2: fav2.value.trim()
         };
-
-        localStorage.setItem("neskyUser", JSON.stringify(userData));
+        localStorage.setItem("neskyUser", JSON.stringify(user));
         modal.style.display = "none";
-
-        renderNavControls(userData);
+        renderNavControls(user);
     };
 }
 
 function checkUserData() {
     const data = localStorage.getItem("neskyUser");
-    if (!data) {
-        showOnboarding();
-    } else {
-        const user = JSON.parse(data);
-        renderNavControls(user);
-    }
+    if (!data) showOnboarding();
+    else renderNavControls(JSON.parse(data));
 }
 
-// 📍 Lokalizacja + start
-function initApp() {
-    checkUserData();
+// 📍 Start
+let currentLat = 0;
+let currentLon = 0;
 
-    if (!navigator.geolocation) {
+navigator.geolocation.getCurrentPosition(
+    pos => {
+        currentLat = pos.coords.latitude;
+        currentLon = pos.coords.longitude;
+
+        loadWeather(currentLat, currentLon);
+        loadMap(currentLat, currentLon);
+        checkUserData();
+    },
+    () => {
         document.getElementById("weather").textContent = "Brak dostępu do lokalizacji.";
-        document.getElementById("mapContainer").textContent = "Brak dostępu do lokalizacji – mapa niedostępna.";
-        return;
+        document.getElementById("map").textContent = "Mapa niedostępna.";
+        checkUserData();
     }
-
-    navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-
-            loadWeather(lat, lon);
-            loadTrafficMap(lat, lon);
-        },
-        () => {
-            document.getElementById("weather").textContent = "Odmowa dostępu do lokalizacji.";
-            document.getElementById("mapContainer").textContent = "Odmowa dostępu do lokalizacji – mapa niedostępna.";
-        }
-    );
-}
-
-initApp();
+); 
