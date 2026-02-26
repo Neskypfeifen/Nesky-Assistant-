@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <title>Nesky Assistant</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+    <!-- Leaflet Routing Machine -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css">
+
     <link rel="stylesheet" href="style2.css">
 </head>
 <body>
@@ -24,15 +31,13 @@
         </section>
 
         <section class="card">
-            <h2>🚗 Mapa i ruch drogowy</h2>
-            <div id="mapContainer">Ładowanie mapy...</div>
+            <h2>🗺️ Mapa</h2>
+            <div id="map" style="height: 260px; border-radius: 10px;"></div>
         </section>
 
         <section class="card">
             <h2>🧭 Nawigacja</h2>
-            <div id="navControls">
-                Ładowanie nawigacji...
-            </div>
+            <div id="navControls">Ładowanie...</div>
         </section>
 
         <section class="card">
@@ -45,22 +50,29 @@
     <div id="onboardingModal" class="modal">
         <div class="modal-content">
             <h2>Witaj! Ustaw swoje miejsca</h2>
+
             <label>Dom</label>
-            <input id="homeAddress" type="text" placeholder="np. Nikolausstraße 7, Geroldshausen">
+            <input id="homeAddress" type="text">
 
             <label>Praca</label>
-            <input id="workAddress" type="text" placeholder="np. Baumhofstraße 40, Marktheidenfeld">
+            <input id="workAddress" type="text">
 
             <label>Miejsce 1</label>
-            <input id="fav1" type="text" placeholder="np. siłownia, sklep">
+            <input id="fav1" type="text">
 
             <label>Miejsce 2</label>
-            <input id="fav2" type="text" placeholder="np. rodzina, ulubione miejsce">
+            <input id="fav2" type="text">
 
             <button id="saveUserData">Zapisz</button>
         </div>
     </div>
 
+    <!-- Leaflet -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Routing -->
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
     <script src="app.js"></script>
 </body>
-</html>
+</html> 
