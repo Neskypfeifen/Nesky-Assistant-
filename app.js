@@ -2,7 +2,7 @@
    KONFIGURACJA
    =============================== */
 
-const OPENWEATHER_API_KEY = "TU_WSTAW_SWÓJ_KLUCZ"; // ← Wstaw swój klucz OpenWeatherMap
+const OPENWEATHER_API_KEY = "b29b1069f8cdd5ddc69d6fcc9592c4a1"; // ← Wstaw swój klucz OpenWeatherMap
 
 const GOOGLE_CLIENT_ID = "59559337506-iul40kn2gsjschbkdl92jabsp4slfjaa.apps.googleusercontent.com";
 const GOOGLE_SCOPES = "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events";
