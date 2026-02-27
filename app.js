@@ -20,7 +20,6 @@ const LOCAL_STORAGE_THEME_KEY = "neskyTheme";
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
-    // wczytanie tokenu Google z localStorage
     googleAccessToken = localStorage.getItem("neskyGoogleAccessToken") || null;
 
     initTheme();
@@ -30,11 +29,16 @@ document.addEventListener("DOMContentLoaded", () => {
     initPlacesAndOnboarding();
     initNavigation();
     initEventsUI();
+
+    if (googleAccessToken) {
+        const btn = document.getElementById("googleConnectBtn");
+        if (btn) btn.style.display = "none";
+    }
 });
 
 
 // ===============================
-//  MOTYW (JASNY / CIEMNY)
+//  MOTYW
 // ===============================
 
 function initTheme() {
@@ -75,7 +79,7 @@ function initSearch() {
 
 
 // ===============================
-//  POGODA – OpenWeatherMap
+//  POGODA
 // ===============================
 
 function initWeather() {
@@ -113,7 +117,7 @@ async function loadWeather(lat, lon) {
         }
 
         const temp = Math.round(data.main.temp);
-        const desc = data.weather && data.weather[0] ? data.weather[0].description : "";
+        const desc = data.weather?.[0]?.description || "";
         const city = data.name || "";
 
         weatherEl.innerHTML = `
@@ -121,14 +125,13 @@ async function loadWeather(lat, lon) {
             <p>${temp}°C, ${desc}</p>
         `;
     } catch (e) {
-        console.error("Błąd pogody:", e);
         weatherEl.textContent = "Błąd ładowania pogody.";
     }
 }
 
 
 // ===============================
-//  MAPA – Leaflet + OpenStreetMap
+//  MAPA
 // ===============================
 
 let neskyMap = null;
@@ -173,41 +176,33 @@ function initPlacesAndOnboarding() {
 
     const saved = loadPlaces();
 
-    if (saved && (saved.home || saved.work || saved.fav1 || saved.fav2)) {
-        if (homeInput) homeInput.value = saved.home || "";
-        if (workInput) workInput.value = saved.work || "";
-        if (fav1Input) fav1Input.value = saved.fav1 || "";
-        if (fav2Input) fav2Input.value = saved.fav2 || "";
+    if (saved) {
+        homeInput.value = saved.home || "";
+        workInput.value = saved.work || "";
+        fav1Input.value = saved.fav1 || "";
+        fav2Input.value = saved.fav2 || "";
     } else {
-        if (modal) modal.style.display = "block";
+        modal.style.display = "block";
     }
 
-    if (editBtn && modal) {
-        editBtn.addEventListener("click", () => {
-            modal.style.display = "block";
-        });
-    }
+    editBtn.addEventListener("click", () => modal.style.display = "block");
 
-    if (saveBtn && modal) {
-        saveBtn.addEventListener("click", () => {
-            const places = {
-                home: homeInput ? homeInput.value.trim() : "",
-                work: workInput ? workInput.value.trim() : "",
-                fav1: fav1Input ? fav1Input.value.trim() : "",
-                fav2: fav2Input ? fav2Input.value.trim() : ""
-            };
-            localStorage.setItem(LOCAL_STORAGE_PLACES_KEY, JSON.stringify(places));
-            modal.style.display = "none";
-            renderNavigation();
-        });
-    }
+    saveBtn.addEventListener("click", () => {
+        const places = {
+            home: homeInput.value.trim(),
+            work: workInput.value.trim(),
+            fav1: fav1Input.value.trim(),
+            fav2: fav2Input.value.trim()
+        };
+        localStorage.setItem(LOCAL_STORAGE_PLACES_KEY, JSON.stringify(places));
+        modal.style.display = "none";
+        renderNavigation();
+    });
 }
 
 function loadPlaces() {
     try {
-        const raw = localStorage.getItem(LOCAL_STORAGE_PLACES_KEY);
-        if (!raw) return null;
-        return JSON.parse(raw);
+        return JSON.parse(localStorage.getItem(LOCAL_STORAGE_PLACES_KEY));
     } catch {
         return null;
     }
@@ -239,7 +234,7 @@ function renderNavigation() {
         { label: "Miejsce 2", value: places.fav2 }
     ].filter(p => p.value);
 
-    if (items.length === 0) {
+    if (!items.length) {
         navEl.textContent = "Brak zapisanych miejsc.";
         return;
     }
@@ -259,7 +254,7 @@ function renderNavigation() {
 
 
 // ===============================
-//  LOKALNE WYDARZENIA + UI
+//  WYDARZENIA – UI
 // ===============================
 
 function initEventsUI() {
@@ -272,123 +267,95 @@ function initEventsUI() {
     const dateInput = document.getElementById("eventDate");
     const timeInput = document.getElementById("eventTime");
 
-    if (addEventBtn && eventModal) {
-        addEventBtn.addEventListener("click", () => {
-            if (titleInput) titleInput.value = "";
-            if (dateInput) dateInput.value = "";
-            if (timeInput) timeInput.value = "";
-            eventModal.style.display = "block";
+    addEventBtn.addEventListener("click", () => {
+        titleInput.value = "";
+        dateInput.value = "";
+        timeInput.value = "";
+        eventModal.style.display = "block";
+    });
+
+    saveLocalBtn.addEventListener("click", () => {
+        const title = titleInput.value.trim();
+        const date = dateInput.value;
+        const time = timeInput.value;
+
+        if (!title || !date) {
+            alert("Podaj tytuł i datę.");
+            return;
+        }
+
+        const events = loadLocalEvents();
+        events.push({
+            title,
+            date,
+            time,
+            createdAt: new Date().toISOString()
         });
-    }
+        localStorage.setItem(LOCAL_STORAGE_EVENTS_KEY, JSON.stringify(events));
 
-    if (saveLocalBtn && eventModal) {
-        saveLocalBtn.addEventListener("click", () => {
-            const title = titleInput ? titleInput.value.trim() : "";
-            const date = dateInput ? dateInput.value : "";
-            const time = timeInput ? timeInput.value : "";
+        eventModal.style.display = "none";
+        refreshAllEventsView();
+    });
 
-            if (!title || !date) {
-                alert("Podaj tytuł i datę.");
+    saveGoogleBtn.addEventListener("click", async () => {
+        const title = titleInput.value.trim();
+        const date = dateInput.value;
+        const time = timeInput.value;
+
+        if (!title || !date) {
+            alert("Podaj tytuł i datę.");
+            return;
+        }
+
+        if (!googleAccessToken) {
+            alert("Najpierw połącz się z Google Calendar.");
+            return;
+        }
+
+        const startDateTime = time ? `${date}T${time}:00` : `${date}T00:00:00`;
+        const endDateTime = time ? `${date}T${time}:00` : `${date}T23:59:59`;
+
+        const eventBody = {
+            summary: title,
+            start: { dateTime: startDateTime, timeZone: "Europe/Berlin" },
+            end: { dateTime: endDateTime, timeZone: "Europe/Berlin" }
+        };
+
+        try {
+            const response = await fetch(
+                "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${googleAccessToken}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(eventBody)
+                }
+            );
+
+            if (!response.ok) {
+                alert("Nie udało się zapisać wydarzenia w Google Calendar.");
                 return;
             }
 
-            const events = loadLocalEvents();
-            events.push({
-                title,
-                date,
-                time,
-                createdAt: new Date().toISOString()
-            });
-            localStorage.setItem(LOCAL_STORAGE_EVENTS_KEY, JSON.stringify(events));
-
+            alert("Wydarzenie zapisane w Google Calendar!");
             eventModal.style.display = "none";
             refreshAllEventsView();
-        });
-    }
 
-    if (saveGoogleBtn && eventModal) {
-        saveGoogleBtn.addEventListener("click", async () => {
-            const title = titleInput ? titleInput.value.trim() : "";
-            const date = dateInput ? dateInput.value : "";
-            const time = timeInput ? timeInput.value : "";
-
-            if (!title || !date) {
-                alert("Podaj tytuł i datę.");
-                return;
-            }
-
-            if (!googleAccessToken) {
-                alert("Najpierw połącz się z Google Calendar.");
-                return;
-            }
-
-            const startDateTime = time ? `${date}T${time}:00` : `${date}T00:00:00`;
-            const endDateTime = time ? `${date}T${time}:00` : `${date}T23:59:59`;
-
-            const eventBody = {
-                summary: title,
-                start: { dateTime: startDateTime, timeZone: "Europe/Berlin" },
-                end: { dateTime: endDateTime, timeZone: "Europe/Berlin" }
-            };
-
-            try {
-                const response = await fetch(
-                    "https://www.googleapis.com/calendar/v3/calendars/primary/events",
-                    {
-                        method: "POST",
-                        headers: {
-                            Authorization: `Bearer ${googleAccessToken}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(eventBody)
-                    }
-                );
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    console.error("Błąd Google API:", err);
-                    alert("Nie udało się zapisać wydarzenia w Google Calendar.");
-                    return;
-                }
-
-                alert("Wydarzenie zapisane w Google Calendar!");
-                eventModal.style.display = "none";
-                refreshAllEventsView();
-
-            } catch (e) {
-                console.error("Błąd zapisu:", e);
-                alert("Wystąpił błąd podczas zapisywania wydarzenia.");
-            }
-        });
-    }
+        } catch (e) {
+            alert("Wystąpił błąd podczas zapisywania wydarzenia.");
+        }
+    });
 
     refreshAllEventsView();
 }
 
 function loadLocalEvents() {
     try {
-        const raw = localStorage.getItem(LOCAL_STORAGE_EVENTS_KEY);
-        if (!raw) return [];
-        return JSON.parse(raw);
+        return JSON.parse(localStorage.getItem(LOCAL_STORAGE_EVENTS_KEY)) || [];
     } catch {
         return [];
-    }
-}
-
-function refreshAllEventsView() {
-    const localEvents = loadLocalEvents().map(ev => ({
-        source: "local",
-        summary: ev.title,
-        start: {
-            dateTime: ev.time ? `${ev.date}T${ev.time}:00` : null,
-            date: ev.date
-        }
-    }));
-
-    if (googleAccessToken) {
-        fetchGoogleEvents(localEvents);
-    } else {
-        renderEvents(localEvents);
     }
 }
 
@@ -402,9 +369,13 @@ function initGoogleLogin() {
         client_id: GOOGLE_CLIENT_ID,
         scope: GOOGLE_SCOPES,
         callback: (tokenResponse) => {
-            if (tokenResponse && tokenResponse.access_token) {
+            if (tokenResponse?.access_token) {
                 googleAccessToken = tokenResponse.access_token;
                 localStorage.setItem("neskyGoogleAccessToken", googleAccessToken);
+
+                const btn = document.getElementById("googleConnectBtn");
+                if (btn) btn.style.display = "none";
+
                 refreshAllEventsView();
             }
         }
@@ -412,9 +383,7 @@ function initGoogleLogin() {
 }
 
 function connectGoogleCalendar() {
-    if (!googleTokenClient) {
-        initGoogleLogin();
-    }
+    if (!googleTokenClient) initGoogleLogin();
     googleTokenClient.requestAccessToken();
 }
 
@@ -427,14 +396,18 @@ window.connectGoogleCalendar = connectGoogleCalendar;
 
 async function fetchGoogleEvents(localEvents = []) {
     if (!googleAccessToken) {
-        console.error("Brak tokenu Google.");
         renderEvents(localEvents);
         return;
     }
 
     try {
+        const now = new Date().toISOString();
+        const threeDaysLater = new Date();
+        threeDaysLater.setDate(new Date().getDate() + 3);
+        threeDaysLater.setHours(23, 59, 59, 999);
+
         const response = await fetch(
-            "https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime",
+            `https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&timeMin=${now}&timeMax=${threeDaysLater.toISOString()}`,
             {
                 headers: {
                     Authorization: `Bearer ${googleAccessToken}`
@@ -445,40 +418,40 @@ async function fetchGoogleEvents(localEvents = []) {
         const data = await response.json();
 
         if (!data.items) {
-            console.error("Brak wydarzeń w kalendarzu.");
             renderEvents(localEvents);
             return;
         }
 
-        const filteredGoogle = filterEventsForNext3Days(data.items).map(ev => ({
+        const googleEvents = data.items.map(ev => ({
             ...ev,
             source: "google"
         }));
 
-        const all = [...filteredGoogle, ...localEvents];
+        const all = [...googleEvents, ...localEvents];
         renderEvents(all);
 
     } catch (error) {
-        console.error("Błąd pobierania wydarzeń:", error);
         renderEvents(localEvents);
     }
 }
 
 
 // ===============================
-//  FILTROWANIE – 3 NAJBLIŻSZE DNI
+//  FILTROWANIE – 3 DNI
 // ===============================
 
 function filterEventsForNext3Days(events) {
     const now = new Date();
+
     const threeDaysLater = new Date();
     threeDaysLater.setDate(now.getDate() + 3);
+    threeDaysLater.setHours(23, 59, 59, 999);
 
     return events
         .filter(event => {
             const start = event.start.dateTime
                 ? new Date(event.start.dateTime)
-                : new Date(event.start.date + "T12:00:00"); // całodniowe liczymy jako południe
+                : new Date(event.start.date + "T12:00:00");
 
             return start >= now && start <= threeDaysLater;
         })
@@ -486,9 +459,11 @@ function filterEventsForNext3Days(events) {
             const aDate = a.start.dateTime
                 ? new Date(a.start.dateTime)
                 : new Date(a.start.date + "T12:00:00");
+
             const bDate = b.start.dateTime
                 ? new Date(b.start.dateTime)
                 : new Date(b.start.date + "T12:00:00");
+
             return aDate - bDate;
         });
 }
@@ -500,14 +475,11 @@ function filterEventsForNext3Days(events) {
 
 function renderEvents(events) {
     const container = document.getElementById("eventsList");
-    if (!container) {
-        console.error("Nie znaleziono elementu #eventsList.");
-        return;
-    }
+    if (!container) return;
 
     container.innerHTML = "";
 
-    if (!events || events.length === 0) {
+    if (!events.length) {
         container.innerHTML = "<p>Brak wydarzeń w najbliższych 3 dniach.</p>";
         return;
     }
