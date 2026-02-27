@@ -1,23 +1,23 @@
-// ===============================
-//  KONFIGURACJA
-// ===============================
+/* ===============================
+   KONFIGURACJA
+   =============================== */
 
-const OPENWEATHER_API_KEY = "b29b1069f8cdd5ddc69d6fcc9592c4a1";
+const OPENWEATHER_API_KEY = "TU_WSTAW_SWÓJ_KLUCZ"; // ← Wstaw swój klucz OpenWeatherMap
 
 const GOOGLE_CLIENT_ID = "59559337506-iul40kn2gsjschbkdl92jabsp4slfjaa.apps.googleusercontent.com";
-const GOOGLE_SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
+const GOOGLE_SCOPES = "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events";
 
 let googleAccessToken = null;
 let googleTokenClient = null;
 
 const LOCAL_STORAGE_PLACES_KEY = "neskyUserPlaces";
 const LOCAL_STORAGE_EVENTS_KEY = "neskyLocalEvents";
-const LOCAL_STORAGE_THEME_KEY = "neskyTheme";
 
 
-// ===============================
-//  INICJALIZACJA APLIKACJI
-// ===============================
+
+/* ===============================
+   START APLIKACJI
+   =============================== */
 
 document.addEventListener("DOMContentLoaded", () => {
     googleAccessToken = localStorage.getItem("neskyGoogleAccessToken") || null;
@@ -36,9 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// ===============================
-//  WYSZUKIWARKA GOOGLE
-// ===============================
+
+/* ===============================
+   WYSZUKIWARKA GOOGLE
+   =============================== */
 
 function initSearch() {
     const input = document.getElementById("searchInput");
@@ -52,42 +53,75 @@ function initSearch() {
 }
 
 
-// ===============================
-//  POGODA
-// ===============================
+
+/* ===============================
+   POGODA — ROZBUDOWANA
+   =============================== */
 
 function initWeather() {
-    const weatherEl = document.getElementById("weather");
-    if (!weatherEl) return;
-
     navigator.geolocation.getCurrentPosition(
-        (pos) => loadWeather(pos.coords.latitude, pos.coords.longitude),
-        () => weatherEl.textContent = "Nie udało się pobrać lokalizacji."
+        (pos) => {
+            fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude);
+        },
+        () => {
+            document.getElementById("weatherLocation").textContent = "Brak lokalizacji";
+        }
     );
 }
 
-async function loadWeather(lat, lon) {
-    const weatherEl = document.getElementById("weather");
-
+async function fetchWeatherByCoords(lat, lon) {
     try {
-        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=pl`;
+        const url =
+            `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}` +
+            `&appid=${OPENWEATHER_API_KEY}&units=metric&lang=pl`;
+
         const res = await fetch(url);
+        if (!res.ok) throw new Error("Błąd pobierania pogody");
         const data = await res.json();
-
-        const temp = Math.round(data.main.temp);
-        const desc = data.weather?.[0]?.description || "";
-        const city = data.name || "";
-
-        weatherEl.innerHTML = `<p><strong>${city}</strong></p><p>${temp}°C, ${desc}</p>`;
-    } catch {
-        weatherEl.textContent = "Błąd ładowania pogody.";
+        updateWeatherUI(data);
+    } catch (err) {
+        console.error(err);
+        document.getElementById("weatherLocation").textContent = "Błąd pogody";
     }
 }
 
+function updateWeatherUI(data) {
+    const locEl = document.getElementById("weatherLocation");
+    const descEl = document.getElementById("weatherDescription");
+    const tempEl = document.getElementById("weatherTemp");
+    const feelsEl = document.getElementById("weatherFeels");
+    const windEl = document.getElementById("weatherWind");
+    const humEl = document.getElementById("weatherHumidity");
+    const pressEl = document.getElementById("weatherPressure");
+    const rainEl = document.getElementById("weatherRain");
 
-// ===============================
-//  MAPA
-// ===============================
+    const name = data.name || "Twoja lokalizacja";
+    const desc = data.weather?.[0]?.description || "–";
+    const temp = Math.round(data.main?.temp ?? 0);
+    const feels = Math.round(data.main?.feels_like ?? 0);
+    const wind = data.wind?.speed != null ? data.wind.speed.toFixed(1) : "–";
+    const hum = data.main?.humidity ?? "–";
+    const press = data.main?.pressure ?? "–";
+
+    const rain1h = data.rain?.["1h"] ?? 0;
+    const snow1h = data.snow?.["1h"] ?? 0;
+    const totalPrecip = rain1h + snow1h;
+
+    locEl.textContent = name;
+    descEl.textContent = desc;
+    tempEl.textContent = `${temp}°C`;
+    feelsEl.textContent = `odczuwalna ${feels}°C`;
+    windEl.textContent = `${wind} m/s`;
+    humEl.textContent = `${hum} %`;
+    pressEl.textContent = `${press} hPa`;
+    rainEl.textContent = totalPrecip > 0 ? `${totalPrecip.toFixed(1)} mm` : "brak";
+}
+
+
+
+/* ===============================
+   MAPA
+   =============================== */
 
 let neskyMap = null;
 
@@ -104,15 +138,18 @@ function initMap() {
     navigator.geolocation.getCurrentPosition(
         (pos) => {
             neskyMap.setView([pos.coords.latitude, pos.coords.longitude], 12);
-            L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(neskyMap).bindPopup("Tu jesteś");
+            L.marker([pos.coords.latitude, pos.coords.longitude])
+                .addTo(neskyMap)
+                .bindPopup("Tu jesteś");
         }
     );
 }
 
 
-// ===============================
-//  MIEJSCA + ONBOARDING
-// ===============================
+
+/* ===============================
+   MIEJSCA + ONBOARDING
+   =============================== */
 
 function initPlacesAndOnboarding() {
     const modal = document.getElementById("onboardingModal");
@@ -132,10 +169,10 @@ function initPlacesAndOnboarding() {
         fav1Input.value = saved.fav1 || "";
         fav2Input.value = saved.fav2 || "";
     } else {
-        modal.style.display = "block";
+        modal.style.display = "flex";
     }
 
-    editBtn.addEventListener("click", () => modal.style.display = "block");
+    editBtn.addEventListener("click", () => modal.style.display = "flex");
 
     saveBtn.addEventListener("click", () => {
         const places = {
@@ -159,9 +196,10 @@ function loadPlaces() {
 }
 
 
-// ===============================
-//  NAWIGACJA
-// ===============================
+
+/* ===============================
+   NAWIGACJA
+   =============================== */
 
 function initNavigation() {
     renderNavigation();
@@ -193,15 +231,17 @@ function renderNavigation() {
         const btn = document.createElement("button");
         btn.className = "nav-place-btn";
         btn.textContent = `${item.label}: ${item.value}`;
-        btn.onclick = () => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.value)}`, "_blank");
+        btn.onclick = () =>
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.value)}`, "_blank");
         navEl.appendChild(btn);
     });
 }
 
 
-// ===============================
-//  WYDARZENIA – UI
-// ===============================
+
+/* ===============================
+   WYDARZENIA — UI
+   =============================== */
 
 function initEventsUI() {
     const addEventBtn = document.getElementById("addEventBtn");
@@ -215,7 +255,7 @@ function initEventsUI() {
         titleInput.value = "";
         dateInput.value = "";
         timeInput.value = "";
-        eventModal.style.display = "block";
+        eventModal.style.display = "flex";
     });
 
     document.getElementById("saveEventLocalBtn").addEventListener("click", () => {
@@ -234,12 +274,13 @@ function initEventsUI() {
     });
 
     document.getElementById("saveEventGoogleBtn").addEventListener("click", async () => {
+        if (!googleAccessToken) return alert("Najpierw połącz z Google Calendar.");
+
         const title = titleInput.value.trim();
         const date = dateInput.value;
         const time = timeInput.value;
 
         if (!title || !date) return alert("Podaj tytuł i datę.");
-        if (!googleAccessToken) return alert("Najpierw połącz się z Google Calendar.");
 
         const startDateTime = time ? `${date}T${time}:00` : `${date}T00:00:00`;
         const endDateTime = time ? `${date}T${time}:00` : `${date}T23:59:59`;
@@ -265,7 +306,7 @@ function initEventsUI() {
 
             if (!response.ok) return alert("Nie udało się zapisać wydarzenia w Google Calendar.");
 
-            alert("Wydarzenie zapisane w Google Calendar!");
+            alert("Wydarzenie zapisane!");
             eventModal.style.display = "none";
             refreshAllEventsView();
 
@@ -286,9 +327,10 @@ function loadLocalEvents() {
 }
 
 
-// ===============================
-//  GOOGLE CALENDAR – LOGOWANIE
-// ===============================
+
+/* ===============================
+   GOOGLE CALENDAR — LOGOWANIE
+   =============================== */
 
 function initGoogleLogin() {
     googleTokenClient = google.accounts.oauth2.initTokenClient({
@@ -316,9 +358,10 @@ function connectGoogleCalendar() {
 window.connectGoogleCalendar = connectGoogleCalendar;
 
 
-// ===============================
-//  GOOGLE CALENDAR – POBIERANIE
-// ===============================
+
+/* ===============================
+   GOOGLE CALENDAR — POBIERANIE
+   =============================== */
 
 async function fetchGoogleEvents(localEvents = []) {
     if (!googleAccessToken) return renderEvents(localEvents);
@@ -352,9 +395,10 @@ async function fetchGoogleEvents(localEvents = []) {
 }
 
 
-// ===============================
-//  RENDEROWANIE WYDARZEŃ
-// ===============================
+
+/* ===============================
+   WYDARZENIA — RENDER
+   =============================== */
 
 function refreshAllEventsView() {
     const localEvents = loadLocalEvents().map(ev => ({
@@ -394,7 +438,7 @@ function renderEvents(events) {
         const div = document.createElement("div");
         div.className = "event-item";
         div.innerHTML = `
-            <strong>${event.summary || event.title || "Bez nazwy"}</strong>
+            <strong>${event.summary || "Bez nazwy"}</strong>
             <span class="event-time">${dateStr} • ${timeStr}</span>
             <span class="event-source">${sourceLabel}</span>
         `;
