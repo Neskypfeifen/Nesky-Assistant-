@@ -5,7 +5,10 @@
 const OPENWEATHER_API_KEY = "b29b1069f8cdd5ddc69d6fcc9592c4a1"; // ← Wstaw swój klucz OpenWeatherMap
 
 const GOOGLE_CLIENT_ID = "59559337506-iul40kn2gsjschbkdl92jabsp4slfjaa.apps.googleusercontent.com";
-const GOOGLE_SCOPES = "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events";
+const GOOGLE_SCOPES =
+    "https://www.googleapis.com/auth/calendar " +
+    "https://www.googleapis.com/auth/calendar.events " +
+    "https://www.googleapis.com/auth/gmail.readonly";
 
 let googleAccessToken = null;
 let googleTokenClient = null;
@@ -16,10 +19,119 @@ const LOCAL_STORAGE_EVENTS_KEY = "neskyLocalEvents";
 
 
 /* ===============================
+   JĘZYK APLIKACJI — AUTO-DETEKCJA
+   =============================== */
+
+let APP_LANG = "pl"; // domyślnie
+
+const translations = {
+    pl: {
+        searchPlaceholder: "Szukaj w Google...",
+        weather: "Pogoda",
+        feels: "odczuwalna",
+        wind: "Wiatr",
+        humidity: "Wilgotność",
+        pressure: "Ciśnienie",
+        rain: "Opady",
+        noRain: "brak",
+        map: "Mapa",
+        navigation: "Nawigacja",
+        editPlaces: "Edytuj miejsca ✏️",
+        events: "Wydarzenia",
+        connectGoogle: "Połącz z Google Calendar",
+        addEvent: "Dodaj wydarzenie ➕",
+        home: "Dom",
+        work: "Praca",
+        place1: "Miejsce 1",
+        place2: "Miejsce 2",
+        weatherError: "Błąd pogody"
+    },
+
+    en: {
+        searchPlaceholder: "Search in Google...",
+        weather: "Weather",
+        feels: "feels like",
+        wind: "Wind",
+        humidity: "Humidity",
+        pressure: "Pressure",
+        rain: "Rain",
+        noRain: "none",
+        map: "Map",
+        navigation: "Navigation",
+        editPlaces: "Edit places ✏️",
+        events: "Events",
+        connectGoogle: "Connect Google Calendar",
+        addEvent: "Add event ➕",
+        home: "Home",
+        work: "Work",
+        place1: "Place 1",
+        place2: "Place 2",
+        weatherError: "Weather error"
+    },
+
+    de: {
+        searchPlaceholder: "In Google suchen...",
+        weather: "Wetter",
+        feels: "gefühlt",
+        wind: "Wind",
+        humidity: "Luftfeuchtigkeit",
+        pressure: "Druck",
+        rain: "Niederschlag",
+        noRain: "kein",
+        map: "Karte",
+        navigation: "Navigation",
+        editPlaces: "Orte bearbeiten ✏️",
+        events: "Termine",
+        connectGoogle: "Mit Google Kalender verbinden",
+        addEvent: "Termin hinzufügen ➕",
+        home: "Zuhause",
+        work: "Arbeit",
+        place1: "Ort 1",
+        place2: "Ort 2",
+        weatherError: "Wetterfehler"
+    }
+};
+
+function detectLanguage() {
+    const lang = (navigator.language || "pl").slice(0, 2);
+    APP_LANG = translations[lang] ? lang : "en";
+}
+
+function applyTranslations() {
+    const t = translations[APP_LANG];
+
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) searchInput.placeholder = t.searchPlaceholder;
+
+    const weatherCardTitle = document.querySelector("#weatherCard h2");
+    if (weatherCardTitle) weatherCardTitle.textContent = t.weather;
+
+    const mapCardTitle = document.querySelector("#map")?.parentElement?.querySelector("h2");
+    if (mapCardTitle) mapCardTitle.textContent = t.map;
+
+    const navCardTitle = document.querySelector("#navControls")?.parentElement?.querySelector("h2");
+    if (navCardTitle) navCardTitle.textContent = t.navigation;
+
+    const editBtn = document.getElementById("editPlaces");
+    if (editBtn) editBtn.textContent = t.editPlaces;
+
+    const googleBtn = document.getElementById("googleConnectBtn");
+    if (googleBtn) googleBtn.textContent = t.connectGoogle;
+
+    const addEventBtn = document.getElementById("addEventBtn");
+    if (addEventBtn) addEventBtn.textContent = t.addEvent;
+}
+
+
+
+/* ===============================
    START APLIKACJI
    =============================== */
 
 document.addEventListener("DOMContentLoaded", () => {
+    detectLanguage();
+    applyTranslations();
+
     googleAccessToken = localStorage.getItem("neskyGoogleAccessToken") || null;
 
     initSearch();
@@ -33,6 +145,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const btn = document.getElementById("googleConnectBtn");
         if (btn) btn.style.display = "none";
     }
+
+    setTimeout(fetchUnreadEmails, 1500);
 });
 
 
@@ -64,7 +178,8 @@ function initWeather() {
             fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude);
         },
         () => {
-            document.getElementById("weatherLocation").textContent = "Brak lokalizacji";
+            document.getElementById("weatherLocation").textContent =
+                translations[APP_LANG].weatherError;
         }
     );
 }
@@ -73,7 +188,7 @@ async function fetchWeatherByCoords(lat, lon) {
     try {
         const url =
             `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}` +
-            `&appid=${OPENWEATHER_API_KEY}&units=metric&lang=pl`;
+            `&appid=${OPENWEATHER_API_KEY}&units=metric&lang=${APP_LANG}`;
 
         const res = await fetch(url);
         if (!res.ok) throw new Error("Błąd pobierania pogody");
@@ -81,11 +196,14 @@ async function fetchWeatherByCoords(lat, lon) {
         updateWeatherUI(data);
     } catch (err) {
         console.error(err);
-        document.getElementById("weatherLocation").textContent = "Błąd pogody";
+        document.getElementById("weatherLocation").textContent =
+            translations[APP_LANG].weatherError;
     }
 }
 
 function updateWeatherUI(data) {
+    const t = translations[APP_LANG];
+
     const locEl = document.getElementById("weatherLocation");
     const descEl = document.getElementById("weatherDescription");
     const tempEl = document.getElementById("weatherTemp");
@@ -110,11 +228,11 @@ function updateWeatherUI(data) {
     locEl.textContent = name;
     descEl.textContent = desc;
     tempEl.textContent = `${temp}°C`;
-    feelsEl.textContent = `odczuwalna ${feels}°C`;
+    feelsEl.textContent = `${t.feels} ${feels}°C`;
     windEl.textContent = `${wind} m/s`;
     humEl.textContent = `${hum} %`;
     pressEl.textContent = `${press} hPa`;
-    rainEl.textContent = totalPrecip > 0 ? `${totalPrecip.toFixed(1)} mm` : "brak";
+    rainEl.textContent = totalPrecip > 0 ? `${totalPrecip.toFixed(1)} mm` : t.noRain;
 }
 
 
@@ -208,6 +326,7 @@ function initNavigation() {
 function renderNavigation() {
     const navEl = document.getElementById("navControls");
     const places = loadPlaces();
+    const t = translations[APP_LANG];
 
     if (!places) {
         navEl.textContent = "Brak zapisanych miejsc.";
@@ -215,10 +334,10 @@ function renderNavigation() {
     }
 
     const items = [
-        { label: "Dom", value: places.home },
-        { label: "Praca", value: places.work },
-        { label: "Miejsce 1", value: places.fav1 },
-        { label: "Miejsce 2", value: places.fav2 }
+        { label: t.home, value: places.home },
+        { label: t.work, value: places.work },
+        { label: t.place1, value: places.fav1 },
+        { label: t.place2, value: places.fav2 }
     ].filter(p => p.value);
 
     if (!items.length) {
@@ -345,6 +464,7 @@ function initGoogleLogin() {
                 if (btn) btn.style.display = "none";
 
                 refreshAllEventsView();
+                fetchUnreadEmails();
             }
         }
     });
@@ -445,3 +565,50 @@ function renderEvents(events) {
         container.appendChild(div);
     });
 }
+
+
+
+/* ===============================
+   GMAIL — LICZBA NOWYCH WIADOMOŚCI
+   =============================== */
+
+async function fetchUnreadEmails() {
+    const statusEl = document.getElementById("emailStatus");
+    if (!statusEl) return;
+
+    if (!googleAccessToken) {
+        statusEl.textContent = "Połącz z Google, aby sprawdzić pocztę.";
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            "https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=UNREAD&maxResults=50",
+            {
+                headers: {
+                    Authorization: `Bearer ${googleAccessToken}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            statusEl.textContent = "Błąd pobierania poczty.";
+            return;
+        }
+
+        const data = await response.json();
+        const unreadCount = data.resultSizeEstimate ?? 0;
+
+        if (unreadCount === 0) {
+            statusEl.textContent = "Brak nowych wiadomości.";
+        } else {
+            statusEl.textContent = `Nowe wiadomości: ${unreadCount}`;
+        }
+
+    } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Błąd połączenia z pocztą.";
+    }
+}
+
+setInterval(fetchUnreadEmails, 60000);
