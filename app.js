@@ -2,7 +2,7 @@
 //  GOOGLE CALENDAR – KONFIGURACJA
 // ===============================
 
-const GOOGLE_CLIENT_ID = "TU_WKLEJ_SWÓJ_CLIENT_ID";
+const GOOGLE_CLIENT_ID = "59559337506-iul40kn2gsjschbkdl92jabsp4slfjaa.apps.googleusercontent.com";
 const GOOGLE_SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
 
 let googleAccessToken = null;
@@ -22,7 +22,7 @@ function initGoogleLogin() {
                 googleAccessToken = tokenResponse.access_token;
                 localStorage.setItem("neskyGoogleAccessToken", googleAccessToken);
 
-                fetchGoogleEvents(); // <<< KLUCZOWE
+                fetchGoogleEvents(); // po zalogowaniu od razu pobieramy wydarzenia
             }
         }
     });
@@ -60,6 +60,7 @@ async function fetchGoogleEvents() {
 
         if (!data.items) {
             console.error("Brak wydarzeń w kalendarzu.");
+            renderEvents([]);
             return;
         }
 
@@ -68,6 +69,7 @@ async function fetchGoogleEvents() {
 
     } catch (error) {
         console.error("Błąd pobierania wydarzeń:", error);
+        renderEvents([]);
     }
 }
 
@@ -100,6 +102,11 @@ function filterEventsForNext3Days(events) {
 
 function renderEvents(events) {
     const container = document.getElementById("eventsList");
+    if (!container) {
+        console.error("Nie znaleziono elementu #eventsList.");
+        return;
+    }
+
     container.innerHTML = "";
 
     if (events.length === 0) {
