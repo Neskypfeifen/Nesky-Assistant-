@@ -1,8 +1,45 @@
 // ===============================
-//  GOOGLE CALENDAR – 3 NAJBLIŻSZE DNI
+//  GOOGLE CALENDAR – KONFIGURACJA
 // ===============================
 
-// Pobieranie wydarzeń z Google Calendar
+const GOOGLE_CLIENT_ID = "TU_WKLEJ_SWÓJ_CLIENT_ID";
+const GOOGLE_SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
+
+let googleAccessToken = null;
+let googleTokenClient = null;
+
+
+// ===============================
+//  LOGOWANIE DO GOOGLE
+// ===============================
+
+function initGoogleLogin() {
+    googleTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: GOOGLE_SCOPES,
+        callback: (tokenResponse) => {
+            if (tokenResponse && tokenResponse.access_token) {
+                googleAccessToken = tokenResponse.access_token;
+                localStorage.setItem("neskyGoogleAccessToken", googleAccessToken);
+
+                fetchGoogleEvents(); // <<< KLUCZOWE
+            }
+        }
+    });
+}
+
+function connectGoogleCalendar() {
+    if (!googleTokenClient) {
+        initGoogleLogin();
+    }
+    googleTokenClient.requestAccessToken();
+}
+
+
+// ===============================
+//  POBIERANIE WYDARZEŃ
+// ===============================
+
 async function fetchGoogleEvents() {
     if (!googleAccessToken) {
         console.error("Brak tokenu Google.");
@@ -34,7 +71,11 @@ async function fetchGoogleEvents() {
     }
 }
 
-// Filtrowanie wydarzeń na najbliższe 3 dni
+
+// ===============================
+//  FILTROWANIE – 3 NAJBLIŻSZE DNI
+// ===============================
+
 function filterEventsForNext3Days(events) {
     const now = new Date();
     const threeDaysLater = new Date();
@@ -52,7 +93,11 @@ function filterEventsForNext3Days(events) {
         });
 }
 
-// Renderowanie wydarzeń w HTML
+
+// ===============================
+//  RENDEROWANIE WYDARZEŃ
+// ===============================
+
 function renderEvents(events) {
     const container = document.getElementById("eventsList");
     container.innerHTML = "";
