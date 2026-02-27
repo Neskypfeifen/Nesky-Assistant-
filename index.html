@@ -5,106 +5,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nesky Assistant</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style2.css" />
 
+    <!-- Leaflet mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Google OAuth -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
 <body>
-    <div class="app">
+<div class="app">
 
-        <!-- HEADER Z LOGO -->
-        <div class="app-header">
-    <div class="nesky-logo-ai">
-        <div class="ai-icon"></div>
-        <span>Nesky Assistant</span>
-    </div>
-</div>
-
-
-        <!-- WYSZUKIWARKA -->
-        <div class="search-section">
-            <input id="searchInput" type="text" placeholder="Szukaj w Google..." />
-            <button onclick="searchGoogle()">🔍</button>
-        </div>
-
-        <!-- POGODA -->
-        <div class="card">
-            <h2>☀️ Pogoda</h2>
-            <div id="weather">Ładowanie danych...</div>
-        </div>
-
-        <!-- MAPA -->
-        <div class="card">
-            <h2>🗺 Mapa i ruch drogowy</h2>
-            <div id="map" style="height: 260px;"></div>
-        </div>
-
-        <!-- NAWIGACJA -->
-        <div class="card">
-            <h2>📍 Nawigacja</h2>
-            <div id="navControls">Ładowanie...</div>
-            <button class="edit-btn" id="editPlaces">Edytuj miejsca ✏️</button>
-        </div>
-
-        <!-- WYDARZENIA -->
-        <div class="card">
-            <h2>🗓 Nadchodzące wydarzenia</h2>
-
-            <button id="googleConnectBtn" onclick="connectGoogleCalendar()">
-                Połącz z Google Calendar
-            </button>
-
-            <div id="eventsList">Ładowanie...</div>
-
-            <button id="addEventBtn">+ Dodaj wydarzenie</button>
+    <!-- LOGO — wariant z literą N -->
+    <div class="nesky-logo-n">
+        <div class="nesky-n-icon">N</div>
+        <div class="nesky-n-text">
+            <span class="nesky-n-main">Nesky</span>
+            <span class="nesky-n-sub">Assistant</span>
         </div>
     </div>
 
-    <!-- MODAL: ONBOARDING -->
-    <div id="onboardingModal" class="modal">
-        <div class="modal-content">
-            <h2>Twoje miejsca</h2>
-
-            <label>Dom</label>
-            <input id="homeAddress" placeholder="np. ul. Kwiatowa 12" />
-
-            <label>Praca</label>
-            <input id="workAddress" placeholder="np. ul. Leśna 5" />
-
-            <label>Miejsce 1</label>
-            <input id="fav1" placeholder="np. ulubiona siłownia" />
-
-            <label>Miejsce 2</label>
-            <input id="fav2" placeholder="np. sklep" />
-
-            <button id="saveUserData">Zapisz</button>
-        </div>
+    <!-- WYSZUKIWARKA -->
+    <div class="search-section">
+        <input id="searchInput" type="text" placeholder="Szukaj w Google..." />
+        <button onclick="searchGoogle()">🔍</button>
     </div>
 
-    <!-- MODAL: WYDARZENIE -->
-    <div id="eventModal" class="modal">
-        <div class="modal-content">
-            <h2>Dodaj wydarzenie</h2>
+    <!-- POGODA -->
+    <div class="card" id="weatherCard">
+        <h2>🌤 Pogoda</h2>
 
-            <label>Tytuł</label>
-            <input id="eventTitle" placeholder="np. Wizyta u lekarza" />
+        <div class="weather-main-row">
+            <div>
+                <div id="weatherLocation" class="weather-location">–</div>
+                <div id="weatherDescription" class="weather-description">–</div>
+            </div>
 
-            <label>Data</label>
-            <input id="eventDate" type="date" />
+            <div class="weather-temp-block">
+                <span id="weatherTemp" class="weather-temp">–°C</span>
+                <span id="weatherFeels" class="weather-feels">odczuwalna –°C</span>
+            </div>
+        </div>
 
-            <label>Godzina</label>
-            <input id="eventTime" type="time" />
-
-            <div class="event-buttons-row">
-                <button class="event-btn local" id="saveEventLocalBtn">Zapisz lokalnie</button>
-                <button class="event-btn google" id="saveEventGoogleBtn">Zapisz w Google</button>
+        <div class="weather-extra-grid">
+            <div class="weather-extra-item">
+                <span class="label">Wiatr</span>
+                <span id="weatherWind" class="value">– m/s</span>
+            </div>
+            <div class="weather-extra-item">
+                <span class="label">Wilgotność</span>
+                <span id="weatherHumidity" class="value">– %</span>
+            </div>
+            <div class="weather-extra-item">
+                <span class="label">Ciśnienie</span>
+                <span id="weatherPressure" class="value">– hPa</span>
+            </div>
+            <div class="weather-extra-item">
+                <span class="label">Opady</span>
+                <span id="weatherRain" class="value">brak</span>
             </div>
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js"></script>
+    <!-- MAPA -->
+    <div class="card">
+        <h2>🗺 Mapa</h2>
+        <div id="map" style="height: 220px;"></div>
+    </div>
+
+    <!-- NAWIGACJA -->
+    <div class="card">
+        <h2>📍 Nawigacja</h2>
+        <div id="navControls"></div>
+        <button class="edit-btn" id="editPlaces">Edytuj miejsca ✏️</button>
+    </div>
+
+    <!-- WYDARZENIA -->
+    <div class="card">
+        <h2>🗓 Wydarzenia</h2>
+        <button id="googleConnectBtn" onclick="connectGoogleCalendar()">Połącz z Google Calendar</button>
+        <div id="eventsList"></div>
+        <button id="addEventBtn">Dodaj wydarzenie ➕</button>
+    </div>
+
+</div>
+
+<!-- MODAL: miejsca -->
+<div class="modal" id="onboardingModal">
+    <div class="modal-content">
+        <h2>Twoje miejsca</h2>
+
+        <input id="homeAddress" placeholder="Dom" />
+        <input id="workAddress" placeholder="Praca" />
+        <input id="fav1" placeholder="Miejsce 1" />
+        <input id="fav2" placeholder="Miejsce 2" />
+
+        <button id="saveUserData">Zapisz</button>
+    </div>
+</div>
+
+<!-- MODAL: wydarzenia -->
+<div class="modal" id="eventModal">
+    <div class="modal-content">
+        <h2>Nowe wydarzenie</h2>
+
+        <input id="eventTitle" placeholder="Tytuł" />
+        <input id="eventDate" type="date" />
+        <input id="eventTime" type="time" />
+
+        <div class="event-buttons-row">
+            <button class="event-btn local" id="saveEventLocalBtn">Lokalnie</button>
+            <button class="event-btn google" id="saveEventGoogleBtn">Google</button>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
