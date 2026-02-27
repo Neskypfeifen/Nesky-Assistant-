@@ -38,11 +38,12 @@
 
         <section class="card">
             <h2>📅 Nadchodzące wydarzenia</h2>
-            <p>Integracja z kalendarzem – w przygotowaniu.</p>
+            <div id="eventsList">Ładowanie wydarzeń...</div>
+            <button id="addEventBtn" class="edit-btn">+ Dodaj wydarzenie</button>
         </section>
     </div>
 
-    <!-- ONBOARDING MODAL -->
+    <!-- ONBOARDING: MIEJSCA -->
     <div id="onboardingModal" class="modal">
         <div class="modal-content">
             <h2>Ustaw swoje miejsca</h2>
@@ -60,6 +61,24 @@
             <input id="fav2" type="text" placeholder="np. rodzina, ulubione miejsce">
 
             <button id="saveUserData">Zapisz</button>
+        </div>
+    </div>
+
+    <!-- MODAL: DODAJ WYDARZENIE -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <h2>Dodaj wydarzenie</h2>
+
+            <label>Tytuł</label>
+            <input id="eventTitle" type="text" placeholder="np. Trening">
+
+            <label>Data</label>
+            <input id="eventDate" type="date">
+
+            <label>Godzina</label>
+            <input id="eventTime" type="time">
+
+            <button id="saveEventBtn">Zapisz</button>
         </div>
     </div>
 
