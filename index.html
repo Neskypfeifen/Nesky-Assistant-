@@ -1,106 +1,113 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nesky Assistant</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-    <link rel="stylesheet" href="style2.css">
+    <!-- Leaflet mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <!-- Google Identity Services (OAuth 2.0 w przeglądarce) -->
+    <!-- Premium CSS -->
+    <link rel="stylesheet" href="style2.css" />
+
+    <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
+
 <body>
     <div class="app">
-        <header class="app-header">
-            <h1>Nesky Assistant</h1>
-            <button id="themeToggle" class="theme-toggle">🌙</button>
-        </header>
 
-        <section class="search-section">
-            <input id="searchInput" type="text" placeholder="Szukaj w Google...">
+        <!-- HEADER -->
+        <div class="app-header">
+            <h1>Nesky</h1>
+        </div>
+
+        <!-- WYSZUKIWARKA -->
+        <div class="search-section">
+            <input id="searchInput" type="text" placeholder="Szukaj w Google..." />
             <button onclick="searchGoogle()">🔍</button>
-        </section>
+        </div>
 
-        <section class="card">
-            <h2>🌤 Pogoda</h2>
+        <!-- POGODA -->
+        <div class="card">
+            <h2>☀️ Pogoda</h2>
             <div id="weather">Ładowanie danych...</div>
-        </section>
+        </div>
 
-        <section class="card">
+        <!-- MAPA -->
+        <div class="card">
             <h2>🗺️ Mapa i ruch drogowy</h2>
-            <div id="map" style="height:260px; border-radius:10px; overflow:hidden;"></div>
-        </section>
+            <div id="map" style="height: 260px;"></div>
+        </div>
 
-        <section class="card">
-            <h2>🧭 Nawigacja</h2>
+        <!-- NAWIGACJA -->
+        <div class="card">
+            <h2>📍 Nawigacja</h2>
             <div id="navControls">Ładowanie...</div>
-            <button id="editPlaces" class="edit-btn">Edytuj miejsca ✏️</button>
-        </section>
+            <button class="edit-btn" id="editPlaces">Edytuj miejsca ✏️</button>
+        </div>
 
-        <section class="card">
-            <h2>📅 Nadchodzące wydarzenia</h2>
+        <!-- WYDARZENIA -->
+        <div class="card">
+            <h2>🗓️ Nadchodzące wydarzenia</h2>
 
-            <button onclick="connectGoogleCalendar()">Połącz z Google Calendar</button>
-
-<div id="eventsList">Ładowanie wydarzeń...</div>
-
-
-
-            <button id="addEventBtn" class="edit-btn">
-                + Dodaj wydarzenie
+            <button id="googleConnectBtn" onclick="connectGoogleCalendar()">
+                Połącz z Google Calendar
             </button>
-        </section>
+
+            <div id="eventsList">Ładowanie...</div>
+
+            <button id="addEventBtn">+ Dodaj wydarzenie</button>
+        </div>
     </div>
 
-    <!-- ONBOARDING: MIEJSCA -->
+    <!-- MODAL: ONBOARDING -->
     <div id="onboardingModal" class="modal">
         <div class="modal-content">
-            <h2>Ustaw swoje miejsca</h2>
+            <h2>Twoje miejsca</h2>
 
             <label>Dom</label>
-            <input id="homeAddress" type="text" placeholder="np. Nikolausstraße 7, Geroldshausen">
+            <input id="homeAddress" placeholder="np. ul. Kwiatowa 12" />
 
             <label>Praca</label>
-            <input id="workAddress" type="text" placeholder="np. Baumhofstraße 40, Marktheidenfeld">
+            <input id="workAddress" placeholder="np. ul. Leśna 5" />
 
             <label>Miejsce 1</label>
-            <input id="fav1" type="text" placeholder="np. siłownia, sklep">
+            <input id="fav1" placeholder="np. ulubiona siłownia" />
 
             <label>Miejsce 2</label>
-            <input id="fav2" type="text" placeholder="np. rodzina, ulubione miejsce">
+            <input id="fav2" placeholder="np. sklep" />
 
             <button id="saveUserData">Zapisz</button>
         </div>
     </div>
 
-    <!-- MODAL: DODAJ WYDARZENIE -->
+    <!-- MODAL: WYDARZENIE -->
     <div id="eventModal" class="modal">
         <div class="modal-content">
             <h2>Dodaj wydarzenie</h2>
 
             <label>Tytuł</label>
-            <input id="eventTitle" type="text" placeholder="np. Trening">
+            <input id="eventTitle" placeholder="np. Wizyta u lekarza" />
 
             <label>Data</label>
-            <input id="eventDate" type="date">
+            <input id="eventDate" type="date" />
 
             <label>Godzina</label>
-            <input id="eventTime" type="time">
+            <input id="eventTime" type="time" />
 
             <div class="event-buttons-row">
-                <button id="saveEventLocalBtn" class="event-btn local">
-                    🟡 Zapisz lokalnie
-                </button>
-                <button id="saveEventGoogleBtn" class="event-btn google">
-                    🔵 Zapisz w Google
-                </button>
+                <button class="event-btn local" id="saveEventLocalBtn">Zapisz lokalnie</button>
+                <button class="event-btn google" id="saveEventGoogleBtn">Zapisz w Google</button>
             </div>
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Twój kompletny JS -->
     <script src="app.js"></script>
 </body>
 </html>
