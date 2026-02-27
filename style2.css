@@ -102,10 +102,10 @@ body {
 }
 
 /* ===========================
-   LOGO — WARIANT 2 (AI ICON)
+   LOGO — WARIANT Z LITERĄ N
    =========================== */
 
-.nesky-logo-ai {
+.nesky-logo-n {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -114,28 +114,39 @@ body {
     animation: logoIntro 0.7s ease-out;
 }
 
-.ai-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
+.nesky-n-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
     background: linear-gradient(135deg, #ef4444, #b91c1c);
-    box-shadow: 0 0 14px rgba(239, 68, 68, 0.6);
-    position: relative;
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #0b1120;
+    letter-spacing: 1px;
 }
 
-.ai-icon::after {
-    content: "";
-    position: absolute;
-    inset: 6px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.15);
+.nesky-n-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
 }
 
-.nesky-logo-ai span {
+.nesky-n-main {
     font-size: 1.4rem;
     font-weight: 600;
     letter-spacing: 0.5px;
     color: #e5e7eb;
+}
+
+.nesky-n-sub {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #9ca3af;
 }
 
 /* ===========================
@@ -194,6 +205,74 @@ body {
     margin: 0 0 8px;
     font-size: 1rem;
     font-weight: 600;
+}
+
+/* ===========================
+   POGODA — ROZBUDOWANA
+   =========================== */
+
+.weather-main-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.weather-location {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e5e7eb;
+}
+
+.weather-description {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    text-transform: capitalize;
+}
+
+.weather-temp-block {
+    text-align: right;
+}
+
+.weather-temp {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.weather-feels {
+    display: block;
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+.weather-extra-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.weather-extra-item {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    padding: 8px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.weather-extra-item .label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.weather-extra-item .value {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #e5e7eb;
 }
 
 /* ===========================
@@ -437,36 +516,4 @@ body {
 }
 
 .event-btn {
-    flex: 1;
-    border-radius: var(--radius-pill);
-    border: none;
-    padding: 10px 14px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-
-    background: linear-gradient(135deg, #ef4444, #b91c1c);
-    color: #0b1120;
-
-    box-shadow:
-        0 6px 18px rgba(239, 68, 68, 0.35),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-
-    transition: transform 0.18s ease-out, box-shadow 0.25s ease-out;
-}
-
-.event-btn:hover {
-    transform: translateY(-2px);
-    box-shadow:
-        0 10px 26px rgba(239, 68, 68, 0.45),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.07);
-}
-
-.event-btn:active {
-    transform: scale(0.96);
-}
-
-#saveUserData {
-    margin-top: 12px;
-    width: 100%;
-}
+    flex: 
