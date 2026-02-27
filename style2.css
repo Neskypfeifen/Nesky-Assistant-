@@ -29,11 +29,10 @@ body {
 
 :root {
     --bg-main: #020617;
-    --bg-card: rgba(15, 23, 42, 0.96);
-    --bg-card-soft: rgba(15, 23, 42, 0.9);
-    --bg-elevated: rgba(15, 23, 42, 0.98);
+    --bg-card: rgba(255, 255, 255, 0.06);
+    --bg-card-soft: rgba(255, 255, 255, 0.08);
+    --bg-elevated: rgba(255, 255, 255, 0.08);
 
-    --accent-blue: #38bdf8;
     --accent-red: #ef4444;
     --accent-red-soft: rgba(239, 68, 68, 0.18);
 
@@ -41,10 +40,10 @@ body {
     --text-secondary: #9ca3af;
     --text-muted: #6b7280;
 
-    --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.85);
+    --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.45);
 
-    --radius-lg: 18px;
-    --radius-md: 12px;
+    --radius-lg: 22px;
+    --radius-md: 14px;
     --radius-pill: 999px;
 
     --transition-fast: 0.18s ease-out;
@@ -81,11 +80,13 @@ body {
     margin: 24px 12px;
     padding: 18px 16px 22px;
     border-radius: 26px;
+
     background: radial-gradient(circle at top left, rgba(239, 68, 68, 0.12), transparent 55%),
                 radial-gradient(circle at bottom right, rgba(239, 68, 68, 0.12), transparent 55%),
                 rgba(15, 23, 42, 0.96);
+
     box-shadow: var(--shadow-soft);
-    border: 1px solid rgba(148, 163, 184, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(26px);
     color: var(--text-primary);
 }
@@ -118,10 +119,10 @@ body {
 #searchInput {
     flex: 1;
     border-radius: var(--radius-pill);
-    border: 1px solid rgba(148, 163, 184, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     padding: 9px 12px;
     font-size: 0.9rem;
-    background: rgba(15, 23, 42, 0.9);
+    background: rgba(255, 255, 255, 0.06);
     color: var(--text-primary);
 }
 
@@ -136,16 +137,23 @@ body {
 }
 
 /* ===========================
-   KARTY
+   KARTY (GLASS BLUR)
    =========================== */
 
 .card {
     background: var(--bg-card);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+
     border-radius: var(--radius-lg);
-    padding: 12px 12px 14px;
-    margin-bottom: 12px;
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.75);
+    padding: 16px 18px;
+    margin-bottom: 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+        0 8px 28px rgba(0, 0, 0, 0.45),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+
     animation: fadeSlideUp 0.6s ease-out;
 }
 
@@ -163,7 +171,7 @@ body {
     border-radius: var(--radius-md);
     overflow: hidden;
     border: 1px solid rgba(239, 68, 68, 0.4);
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.9);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
 
 /* ===========================
@@ -229,6 +237,54 @@ body {
 }
 
 /* ===========================
+   PRZYCISK „EDYTUJ MIEJSCA”
+   =========================== */
+
+.edit-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 10px 14px;
+
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.15));
+    border: 1px solid rgba(239, 68, 68, 0.35);
+
+    border-radius: 14px;
+    color: #fca5a5;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    box-shadow:
+        0 4px 14px rgba(239, 68, 68, 0.25),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+    transition:
+        transform 0.18s ease-out,
+        box-shadow 0.25s ease-out,
+        border-color 0.25s ease-out;
+}
+
+.edit-btn:hover {
+    transform: translateY(-2px);
+    border-color: rgba(239, 68, 68, 0.55);
+    box-shadow:
+        0 8px 22px rgba(239, 68, 68, 0.35),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.edit-btn:active {
+    transform: scale(0.97);
+}
+
+/* ===========================
    WYDARZENIA
    =========================== */
 
@@ -249,7 +305,7 @@ body {
     padding: 9px 11px;
     margin: 6px 0;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(148, 163, 184, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     animation: fadeSlideUp 0.6s ease-out;
 }
 
@@ -268,7 +324,7 @@ body {
     width: 100%;
     border-radius: var(--radius-pill);
     border: 1px dashed rgba(239, 68, 68, 0.7);
-    background: rgba(15, 23, 42, 0.9);
+    background: rgba(255, 255, 255, 0.06);
     color: var(--text-secondary);
     padding: 7px 10px;
     font-size: 0.85rem;
@@ -295,16 +351,16 @@ body {
     padding: 16px;
     width: 90%;
     max-width: 380px;
-    border: 1px solid rgba(148, 163, 184, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     animation: fadeSlideUp 0.6s ease-out;
 }
 
 .modal-content input {
     width: 100%;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(148, 163, 184, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     padding: 7px 9px;
-    background: rgba(15, 23, 42, 0.9);
+    background: rgba(255, 255, 255, 0.06);
     color: var(--text-primary);
 }
 
