@@ -135,8 +135,69 @@ body.dark .modal-content {
 .event-item {
     padding: 6px 0;
     border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .event-item:last-child {
     border-bottom: none;
-} 
+}
+
+.event-meta {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* PRZYCISK GOOGLE CALENDAR */
+.google-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: #1d4ed8;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+/* MODAL WYDARZENIA – DWA PRZYCISKI */
+.event-buttons-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.event-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.event-btn.local {
+    background: #f59e0b;
+    color: #111827;
+}
+
+.event-btn.google {
+    background: #1d4ed8;
+    color: white;
+}
+
+/* DARK MODE DODATKI */
+body.dark .google-btn {
+    background: #2563eb;
+}
+
+body.dark .event-btn.local {
+    background: #fbbf24;
+    color: #111827;
+}
+
+body.dark .event-btn.google {
+    background: #2563eb;
+}
