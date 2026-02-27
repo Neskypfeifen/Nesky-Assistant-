@@ -22,7 +22,7 @@ function initGoogleLogin() {
                 googleAccessToken = tokenResponse.access_token;
                 localStorage.setItem("neskyGoogleAccessToken", googleAccessToken);
 
-                fetchGoogleEvents(); // po zalogowaniu od razu pobieramy wydarzenia
+                fetchGoogleEvents();
             }
         }
     });
