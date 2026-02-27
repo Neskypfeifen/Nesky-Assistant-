@@ -20,6 +20,9 @@ const LOCAL_STORAGE_THEME_KEY = "neskyTheme";
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
+    // wczytanie tokenu Google z localStorage
+    googleAccessToken = localStorage.getItem("neskyGoogleAccessToken") || null;
+
     initTheme();
     initSearch();
     initWeather();
@@ -473,12 +476,19 @@ function filterEventsForNext3Days(events) {
 
     return events
         .filter(event => {
-            const start = new Date(event.start.dateTime || event.start.date);
+            const start = event.start.dateTime
+                ? new Date(event.start.dateTime)
+                : new Date(event.start.date + "T12:00:00"); // całodniowe liczymy jako południe
+
             return start >= now && start <= threeDaysLater;
         })
         .sort((a, b) => {
-            const aDate = new Date(a.start.dateTime || a.start.date);
-            const bDate = new Date(b.start.dateTime || b.start.date);
+            const aDate = a.start.dateTime
+                ? new Date(a.start.dateTime)
+                : new Date(a.start.date + "T12:00:00");
+            const bDate = b.start.dateTime
+                ? new Date(b.start.dateTime)
+                : new Date(b.start.date + "T12:00:00");
             return aDate - bDate;
         });
 }
@@ -503,7 +513,10 @@ function renderEvents(events) {
     }
 
     events.forEach(event => {
-        const start = new Date(event.start.dateTime || event.start.date);
+        const start = event.start.dateTime
+            ? new Date(event.start.dateTime)
+            : new Date(event.start.date + "T12:00:00");
+
         const dateStr = start.toLocaleDateString("pl-PL");
         const timeStr = event.start.dateTime
             ? start.toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })
