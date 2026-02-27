@@ -49,6 +49,21 @@ body {
 }
 
 /* ===========================
+   ANIMACJE
+   =========================== */
+
+@keyframes fadeSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===========================
    GŁÓWNY CONTAINER
    =========================== */
 
@@ -72,12 +87,13 @@ body {
    =========================== */
 
 .nesky-logo {
-    width: 75px;
+    width: 90px;
     height: auto;
     display: block;
     margin: 0 auto 12px;
     filter: drop-shadow(0 6px 18px rgba(0,0,0,0.45));
     border-radius: 14px;
+    animation: fadeSlideUp 0.6s ease-out;
 }
 
 /* ===========================
@@ -88,6 +104,7 @@ body {
     display: flex;
     gap: 8px;
     margin-bottom: 16px;
+    animation: fadeSlideUp 0.6s ease-out;
 }
 
 #searchInput {
@@ -98,11 +115,6 @@ body {
     font-size: 0.9rem;
     background: rgba(15, 23, 42, 0.9);
     color: var(--text-primary);
-    outline: none;
-}
-
-#searchInput::placeholder {
-    color: var(--text-muted);
 }
 
 .search-section button {
@@ -113,7 +125,6 @@ body {
     background: var(--accent-gradient);
     color: #0b1120;
     cursor: pointer;
-    box-shadow: 0 10px 25px rgba(56, 189, 248, 0.45);
 }
 
 /* ===========================
@@ -127,6 +138,7 @@ body {
     margin-bottom: 12px;
     border: 1px solid var(--border-subtle);
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.75);
+    animation: fadeSlideUp 0.6s ease-out;
 }
 
 .card h2 {
@@ -147,29 +159,60 @@ body {
 }
 
 /* ===========================
-   NAWIGACJA
+   PREMIUM KAFELKI NAWIGACJI (SVG + animacja)
    =========================== */
 
 #navControls {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
 }
 
 .nav-place-btn {
     width: 100%;
-    border-radius: var(--radius-md);
-    border: 1px solid rgba(148, 163, 184, 0.4);
-    background: rgba(15, 23, 42, 0.95);
+    border-radius: 16px;
+    padding: 14px 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
     color: var(--text-primary);
-    padding: 8px 10px;
-    text-align: left;
-    font-size: 0.9rem;
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.92));
+    border: 1px solid rgba(148, 163, 184, 0.28);
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
     cursor: pointer;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.35),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+
+    transition:
+        transform 0.18s ease-out,
+        box-shadow 0.25s ease-out,
+        border-color 0.25s ease-out,
+        background 0.25s ease-out;
+
+    animation: fadeSlideUp 0.6s ease-out;
 }
 
 .nav-place-btn::before {
-    content: "📍 ";
+    content: "";
+    width: 18px;
+    height: 18px;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M168 0C75.1 0 0 75.1 0 168c0 87.4 144 312 168 344 24-32 168-256.6 168-344C336 75.1 260.9 0 168 0zm0 240c-39.8 0-72-32.2-72-72s32.2-72 72-72 72 32.2 72 72-32.2 72-72 72z"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.9;
+}
+
+.nav-place-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    background: linear-gradient(145deg, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.95));
+    box-shadow:
+        0 8px 22px rgba(56, 189, 248, 0.25),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 /* ===========================
@@ -194,6 +237,7 @@ body {
     margin: 6px 0;
     border-radius: var(--radius-md);
     border: 1px solid rgba(148, 163, 184, 0.4);
+    animation: fadeSlideUp 0.6s ease-out;
 }
 
 .event-time {
@@ -239,6 +283,7 @@ body {
     width: 90%;
     max-width: 380px;
     border: 1px solid rgba(148, 163, 184, 0.5);
+    animation: fadeSlideUp 0.6s ease-out;
 }
 
 .modal-content input {
