@@ -28,6 +28,9 @@ function loadWeather(lat, lon) {
                 <img src="https://openweathermap.org/img/wn/${d.weather[0].icon}@2x.png" style="width:40px; vertical-align:middle;">
                 <strong>${Math.round(d.main.temp)}°C</strong> – ${d.weather[0].description}
             `;
+        })
+        .catch(() => {
+            document.getElementById("weather").textContent = "Nie udało się pobrać pogody.";
         });
 }
 
@@ -83,7 +86,7 @@ function navigateCustom() {
     openGoogleMaps(dest);
 }
 
-// 🟦 ONBOARDING
+// 🟦 ONBOARDING MIEJSC
 function showOnboarding() {
     const modal = document.getElementById("onboardingModal");
     modal.style.display = "flex";
@@ -117,6 +120,86 @@ function checkUserData() {
     renderNavControls(user);
 }
 
+// 🟡 WYDARZENIA LOKALNE — ETAP 1
+
+function loadLocalEvents() {
+    const data = localStorage.getItem("neskyEvents");
+    return data ? JSON.parse(data) : [];
+}
+
+function saveLocalEvents(events) {
+    localStorage.setItem("neskyEvents", JSON.stringify(events));
+}
+
+function renderEvents() {
+    const container = document.getElementById("eventsList");
+    const events = loadLocalEvents();
+
+    if (!events.length) {
+        container.innerHTML = "<p>Brak wydarzeń.</p>";
+        return;
+    }
+
+    events.sort((a, b) => {
+        const da = new Date(a.date + " " + a.time);
+        const db = new Date(b.date + " " + b.time);
+        return da - db;
+    });
+
+    container.innerHTML = events.map(evt => `
+        <div class="event-item">
+            🟡 <strong>${evt.time}</strong> – ${evt.title} <br>
+            <small>${evt.date}</small>
+        </div>
+    `).join("");
+}
+
+function openEventModal() {
+    document.getElementById("eventModal").style.display = "flex";
+}
+
+function closeEventModal() {
+    document.getElementById("eventModal").style.display = "none";
+}
+
+function saveEvent() {
+    const title = document.getElementById("eventTitle").value.trim();
+    const date = document.getElementById("eventDate").value;
+    const time = document.getElementById("eventTime").value;
+
+    if (!title || !date || !time) {
+        alert("Wypełnij wszystkie pola.");
+        return;
+    }
+
+    const events = loadLocalEvents();
+
+    events.push({
+        id: "evt_" + Date.now(),
+        title,
+        date,
+        time,
+        source: "local"
+    });
+
+    saveLocalEvents(events);
+    closeEventModal();
+    renderEvents();
+
+    document.getElementById("eventTitle").value = "";
+    document.getElementById("eventDate").value = "";
+    document.getElementById("eventTime").value = "";
+}
+
+// Podpięcie przycisków wydarzeń
+document.getElementById("addEventBtn").onclick = openEventModal;
+document.getElementById("saveEventBtn").onclick = saveEvent;
+
+// Zamknięcie modala wydarzeń po kliknięciu w tło (opcjonalnie)
+document.getElementById("eventModal").addEventListener("click", (e) => {
+    if (e.target.id === "eventModal") closeEventModal();
+});
+
 // 📍 Start
 navigator.geolocation.getCurrentPosition(
     pos => {
@@ -126,10 +209,12 @@ navigator.geolocation.getCurrentPosition(
         loadWeather(currentLat, currentLon);
         initMap(currentLat, currentLon);
         checkUserData();
+        renderEvents();
     },
     () => {
         document.getElementById("weather").textContent = "Brak dostępu do lokalizacji.";
         document.getElementById("map").textContent = "Mapa niedostępna.";
         checkUserData();
+        renderEvents();
     }
 );
