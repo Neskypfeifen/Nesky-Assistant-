@@ -32,18 +32,21 @@ body {
     --bg-card: rgba(15, 23, 42, 0.96);
     --bg-card-soft: rgba(15, 23, 42, 0.9);
     --bg-elevated: rgba(15, 23, 42, 0.98);
-    --border-subtle: rgba(148, 163, 184, 0.25);
-    --accent: #38bdf8;
-    --accent-soft: rgba(56, 189, 248, 0.15);
-    --accent-strong: #0ea5e9;
-    --accent-gradient: linear-gradient(135deg, #38bdf8, #6366f1);
+
+    --accent-blue: #38bdf8;
+    --accent-red: #ef4444;
+    --accent-red-soft: rgba(239, 68, 68, 0.18);
+
     --text-primary: #e5e7eb;
     --text-secondary: #9ca3af;
     --text-muted: #6b7280;
+
     --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.85);
+
     --radius-lg: 18px;
     --radius-md: 12px;
     --radius-pill: 999px;
+
     --transition-fast: 0.18s ease-out;
     --transition-med: 0.25s ease-out;
 }
@@ -53,14 +56,19 @@ body {
    =========================== */
 
 @keyframes fadeSlideUp {
-    0% {
-        opacity: 0;
-        transform: translateY(12px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes logoIntro {
+    0% { opacity: 0; transform: scale(0.85); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ripplePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.97); }
+    100% { transform: scale(1); }
 }
 
 /* ===========================
@@ -73,8 +81,8 @@ body {
     margin: 24px 12px;
     padding: 18px 16px 22px;
     border-radius: 26px;
-    background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%),
-                radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.12), transparent 55%),
+    background: radial-gradient(circle at top left, rgba(239, 68, 68, 0.12), transparent 55%),
+                radial-gradient(circle at bottom right, rgba(239, 68, 68, 0.12), transparent 55%),
                 rgba(15, 23, 42, 0.96);
     box-shadow: var(--shadow-soft);
     border: 1px solid rgba(148, 163, 184, 0.35);
@@ -93,7 +101,7 @@ body {
     margin: 0 auto 12px;
     filter: drop-shadow(0 6px 18px rgba(0,0,0,0.45));
     border-radius: 14px;
-    animation: fadeSlideUp 0.6s ease-out;
+    animation: logoIntro 0.7s ease-out;
 }
 
 /* ===========================
@@ -122,7 +130,7 @@ body {
     border: none;
     padding: 0 14px;
     font-size: 1rem;
-    background: var(--accent-gradient);
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
     color: #0b1120;
     cursor: pointer;
 }
@@ -136,7 +144,7 @@ body {
     border-radius: var(--radius-lg);
     padding: 12px 12px 14px;
     margin-bottom: 12px;
-    border: 1px solid var(--border-subtle);
+    border: 1px solid rgba(148, 163, 184, 0.25);
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.75);
     animation: fadeSlideUp 0.6s ease-out;
 }
@@ -154,12 +162,13 @@ body {
 #map {
     border-radius: var(--radius-md);
     overflow: hidden;
-    border: 1px solid rgba(30, 64, 175, 0.6);
+    border: 1px solid rgba(239, 68, 68, 0.4);
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.9);
 }
 
 /* ===========================
-   PREMIUM KAFELKI NAWIGACJI (SVG + animacja)
+   PREMIUM KAFELKI NAWIGACJI
+   (czerwień + grafit + ripple)
    =========================== */
 
 #navControls {
@@ -175,8 +184,9 @@ body {
     font-size: 0.95rem;
     font-weight: 500;
     color: var(--text-primary);
-    background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.92));
-    border: 1px solid rgba(148, 163, 184, 0.28);
+
+    background: linear-gradient(145deg, rgba(45, 45, 55, 0.95), rgba(20, 20, 28, 0.92));
+    border: 1px solid rgba(239, 68, 68, 0.35);
 
     display: flex;
     align-items: center;
@@ -187,31 +197,34 @@ body {
         0 4px 12px rgba(0, 0, 0, 0.35),
         inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 
-    transition:
-        transform 0.18s ease-out,
-        box-shadow 0.25s ease-out,
-        border-color 0.25s ease-out,
-        background 0.25s ease-out;
-
+    transition: transform 0.18s ease-out, box-shadow 0.25s ease-out, border-color 0.25s ease-out;
     animation: fadeSlideUp 0.6s ease-out;
+    position: relative;
+    overflow: hidden;
 }
 
 .nav-place-btn::before {
     content: "";
     width: 18px;
     height: 18px;
-    background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M168 0C75.1 0 0 75.1 0 168c0 87.4 144 312 168 344 24-32 168-256.6 168-344C336 75.1 260.9 0 168 0zm0 240c-39.8 0-72-32.2-72-72s32.2-72 72-72 72 32.2 72 72-32.2 72-72 72z"/></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23ef4444" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M168 0C75.1 0 0 75.1 0 168c0 87.4 144 312 168 344 24-32 168-256.6 168-344C336 75.1 260.9 0 168 0zm0 240c-39.8 0-72-32.2-72-72s32.2-72 72-72 72 32.2 72 72-32.2 72-72 72z"/></svg>');
     background-size: contain;
     background-repeat: no-repeat;
-    opacity: 0.9;
+    opacity: 0.95;
 }
 
+/* Ripple efekt */
+.nav-place-btn:active {
+    animation: ripplePulse 0.25s ease-out;
+}
+
+/* Hover */
 .nav-place-btn:hover {
     transform: translateY(-2px);
-    border-color: var(--accent);
-    background: linear-gradient(145deg, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.95));
+    border-color: #ef4444;
+    background: linear-gradient(145deg, rgba(239, 68, 68, 0.18), rgba(20, 20, 28, 0.95));
     box-shadow:
-        0 8px 22px rgba(56, 189, 248, 0.25),
+        0 8px 22px rgba(239, 68, 68, 0.25),
         inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
@@ -225,7 +238,7 @@ body {
     border: none;
     padding: 8px 12px;
     margin-bottom: 8px;
-    background: var(--accent-gradient);
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
     color: #0b1120;
     font-weight: 600;
     font-size: 0.9rem;
@@ -254,7 +267,7 @@ body {
     margin-top: 8px;
     width: 100%;
     border-radius: var(--radius-pill);
-    border: 1px dashed rgba(148, 163, 184, 0.7);
+    border: 1px dashed rgba(239, 68, 68, 0.7);
     background: rgba(15, 23, 42, 0.9);
     color: var(--text-secondary);
     padding: 7px 10px;
@@ -317,9 +330,9 @@ body {
 }
 
 .event-btn.google {
-    background: rgba(56, 189, 248, 0.12);
-    color: #38bdf8;
-    border: 1px solid rgba(56, 189, 248, 0.7);
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.7);
 }
 
 #saveUserData {
@@ -328,7 +341,7 @@ body {
     border-radius: var(--radius-pill);
     border: none;
     padding: 8px 10px;
-    background: var(--accent-gradient);
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
     color: #0b1120;
     font-weight: 600;
 }
