@@ -134,7 +134,7 @@ function initMap() {
     const mapEl = document.getElementById("map");
     if (!mapEl) return;
 
-    neskyMap = L.map("map").setView([51.1657, 10.4515], 6); // Niemcy – środek
+    neskyMap = L.map("map").setView([51.1657, 10.4515], 6);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
@@ -148,9 +148,7 @@ function initMap() {
                 neskyMap.setView([latitude, longitude], 12);
                 L.marker([latitude, longitude]).addTo(neskyMap).bindPopup("Tu jesteś");
             },
-            () => {
-                // zostawiamy domyślny widok
-            }
+            () => {}
         );
     }
 }
