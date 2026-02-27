@@ -71,7 +71,7 @@ body.dark .card {
     cursor: pointer;
 }
 
-/* MODAL FIXED */
+/* MODAL OGÓLNY (ONBOARDING + WYDARZENIA) */
 .modal {
     position: fixed;
     inset: 0;
@@ -124,3 +124,19 @@ body.dark .modal-content {
     color: white;
     cursor: pointer;
 }
+
+/* WYDARZENIA */
+#eventsList {
+    margin-top: 6px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.event-item {
+    padding: 6px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.event-item:last-child {
+    border-bottom: none;
+} 
