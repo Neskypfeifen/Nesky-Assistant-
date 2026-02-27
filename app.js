@@ -170,7 +170,6 @@ function initPlacesAndOnboarding() {
     const fav1Input = document.getElementById("fav1");
     const fav2Input = document.getElementById("fav2");
 
-    // Załaduj zapisane miejsca
     const saved = loadPlaces();
 
     if (saved && (saved.home || saved.work || saved.fav1 || saved.fav2)) {
@@ -179,7 +178,6 @@ function initPlacesAndOnboarding() {
         if (fav1Input) fav1Input.value = saved.fav1 || "";
         if (fav2Input) fav2Input.value = saved.fav2 || "";
     } else {
-        // Brak danych – pokaż onboarding
         if (modal) modal.style.display = "block";
     }
 
@@ -307,13 +305,62 @@ function initEventsUI() {
         });
     }
 
-    if (saveGoogleBtn) {
-        saveGoogleBtn.addEventListener("click", () => {
-            alert("Zapisywanie wydarzeń do Google Calendar możemy dodać jako kolejny krok. Na razie działa zapis lokalny.");
+    if (saveGoogleBtn && eventModal) {
+        saveGoogleBtn.addEventListener("click", async () => {
+            const title = titleInput ? titleInput.value.trim() : "";
+            const date = dateInput ? dateInput.value : "";
+            const time = timeInput ? timeInput.value : "";
+
+            if (!title || !date) {
+                alert("Podaj tytuł i datę.");
+                return;
+            }
+
+            if (!googleAccessToken) {
+                alert("Najpierw połącz się z Google Calendar.");
+                return;
+            }
+
+            const startDateTime = time ? `${date}T${time}:00` : `${date}T00:00:00`;
+            const endDateTime = time ? `${date}T${time}:00` : `${date}T23:59:59`;
+
+            const eventBody = {
+                summary: title,
+                start: { dateTime: startDateTime, timeZone: "Europe/Berlin" },
+                end: { dateTime: endDateTime, timeZone: "Europe/Berlin" }
+            };
+
+            try {
+                const response = await fetch(
+                    "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+                    {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${googleAccessToken}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(eventBody)
+                    }
+                );
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    console.error("Błąd Google API:", err);
+                    alert("Nie udało się zapisać wydarzenia w Google Calendar.");
+                    return;
+                }
+
+                alert("Wydarzenie zapisane w Google Calendar!");
+                eventModal.style.display = "none";
+                refreshAllEventsView();
+
+            } catch (e) {
+                console.error("Błąd zapisu:", e);
+                alert("Wystąpił błąd podczas zapisywania wydarzenia.");
+            }
         });
     }
 
-    // Na start odśwież widok (lokalne + Google, jeśli zalogowany)
     refreshAllEventsView();
 }
 
@@ -328,7 +375,6 @@ function loadLocalEvents() {
 }
 
 function refreshAllEventsView() {
-    // Na razie: pokaż lokalne wydarzenia + (jeśli mamy token) dociągnij Google
     const localEvents = loadLocalEvents().map(ev => ({
         source: "local",
         summary: ev.title,
@@ -338,11 +384,9 @@ function refreshAllEventsView() {
         }
     }));
 
-    // Jeśli mamy token Google – pobierz z kalendarza i połącz
     if (googleAccessToken) {
         fetchGoogleEvents(localEvents);
     } else {
-        // Tylko lokalne
         renderEvents(localEvents);
     }
 }
@@ -360,8 +404,6 @@ function initGoogleLogin() {
             if (tokenResponse && tokenResponse.access_token) {
                 googleAccessToken = tokenResponse.access_token;
                 localStorage.setItem("neskyGoogleAccessToken", googleAccessToken);
-
-                // Po zalogowaniu odśwież widok wydarzeń (lokalne + Google)
                 refreshAllEventsView();
             }
         }
@@ -375,7 +417,6 @@ function connectGoogleCalendar() {
     googleTokenClient.requestAccessToken();
 }
 
-// Udostępniamy funkcję globalnie dla przycisku w HTML
 window.connectGoogleCalendar = connectGoogleCalendar;
 
 
@@ -475,8 +516,9 @@ function renderEvents(events) {
         const div = document.createElement("div");
         div.className = "event-item";
         div.innerHTML = `
-            <strong>${dateStr}</strong> ${timeStr} – ${event.summary || event.title || "Bez nazwy"}
-            <span style="font-size:0.8em; opacity:0.7; margin-left:6px;">${sourceLabel}</span>
+            <strong>${event.summary || event.title || "Bez nazwy"}</strong>
+            <span class="event-time">${dateStr} • ${timeStr}</span>
+            <span class="event-source">${sourceLabel}</span>
         `;
         container.appendChild(div);
     });
