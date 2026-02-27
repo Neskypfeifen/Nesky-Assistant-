@@ -22,7 +22,6 @@ const LOCAL_STORAGE_THEME_KEY = "neskyTheme";
 document.addEventListener("DOMContentLoaded", () => {
     googleAccessToken = localStorage.getItem("neskyGoogleAccessToken") || null;
 
-    initTheme();
     initSearch();
     initWeather();
     initMap();
@@ -38,30 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // ===============================
-//  MOTYW
-// ===============================
-
-function initTheme() {
-    const btn = document.getElementById("themeToggle");
-    const saved = localStorage.getItem(LOCAL_STORAGE_THEME_KEY);
-
-    if (saved === "dark") {
-        document.body.classList.add("dark");
-        if (btn) btn.textContent = "☀️";
-    }
-
-    if (btn) {
-        btn.addEventListener("click", () => {
-            document.body.classList.toggle("dark");
-            const isDark = document.body.classList.contains("dark");
-            localStorage.setItem(LOCAL_STORAGE_THEME_KEY, isDark ? "dark" : "light");
-            btn.textContent = isDark ? "☀️" : "🌙";
-        });
-    }
-}
-
-
-// ===============================
 //  WYSZUKIWARKA GOOGLE
 // ===============================
 
@@ -72,8 +47,7 @@ function initSearch() {
     window.searchGoogle = function () {
         const q = input.value.trim();
         if (!q) return;
-        const url = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
-        window.open(url, "_blank");
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, "_blank");
     };
 }
 
@@ -86,45 +60,26 @@ function initWeather() {
     const weatherEl = document.getElementById("weather");
     if (!weatherEl) return;
 
-    if (!navigator.geolocation) {
-        weatherEl.textContent = "Brak dostępu do lokalizacji.";
-        return;
-    }
-
     navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            const { latitude, longitude } = pos.coords;
-            loadWeather(latitude, longitude);
-        },
-        () => {
-            weatherEl.textContent = "Nie udało się pobrać lokalizacji.";
-        }
+        (pos) => loadWeather(pos.coords.latitude, pos.coords.longitude),
+        () => weatherEl.textContent = "Nie udało się pobrać lokalizacji."
     );
 }
 
 async function loadWeather(lat, lon) {
     const weatherEl = document.getElementById("weather");
-    if (!weatherEl) return;
 
     try {
         const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=pl`;
         const res = await fetch(url);
         const data = await res.json();
 
-        if (!data || !data.main) {
-            weatherEl.textContent = "Nie udało się pobrać pogody.";
-            return;
-        }
-
         const temp = Math.round(data.main.temp);
         const desc = data.weather?.[0]?.description || "";
         const city = data.name || "";
 
-        weatherEl.innerHTML = `
-            <p><strong>${city}</strong></p>
-            <p>${temp}°C, ${desc}</p>
-        `;
-    } catch (e) {
+        weatherEl.innerHTML = `<p><strong>${city}</strong></p><p>${temp}°C, ${desc}</p>`;
+    } catch {
         weatherEl.textContent = "Błąd ładowania pogody.";
     }
 }
@@ -143,20 +98,15 @@ function initMap() {
     neskyMap = L.map("map").setView([51.1657, 10.4515], 6);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap"
+        maxZoom: 19
     }).addTo(neskyMap);
 
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const { latitude, longitude } = pos.coords;
-                neskyMap.setView([latitude, longitude], 12);
-                L.marker([latitude, longitude]).addTo(neskyMap).bindPopup("Tu jesteś");
-            },
-            () => {}
-        );
-    }
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            neskyMap.setView([pos.coords.latitude, pos.coords.longitude], 12);
+            L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(neskyMap).bindPopup("Tu jesteś");
+        }
+    );
 }
 
 
@@ -165,8 +115,8 @@ function initMap() {
 // ===============================
 
 function initPlacesAndOnboarding() {
-    const editBtn = document.getElementById("editPlaces");
     const modal = document.getElementById("onboardingModal");
+    const editBtn = document.getElementById("editPlaces");
     const saveBtn = document.getElementById("saveUserData");
 
     const homeInput = document.getElementById("homeAddress");
@@ -219,9 +169,8 @@ function initNavigation() {
 
 function renderNavigation() {
     const navEl = document.getElementById("navControls");
-    if (!navEl) return;
-
     const places = loadPlaces();
+
     if (!places) {
         navEl.textContent = "Brak zapisanych miejsc.";
         return;
@@ -244,10 +193,7 @@ function renderNavigation() {
         const btn = document.createElement("button");
         btn.className = "nav-place-btn";
         btn.textContent = `${item.label}: ${item.value}`;
-        btn.addEventListener("click", () => {
-            const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.value)}`;
-            window.open(url, "_blank");
-        });
+        btn.onclick = () => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.value)}`, "_blank");
         navEl.appendChild(btn);
     });
 }
@@ -260,8 +206,6 @@ function renderNavigation() {
 function initEventsUI() {
     const addEventBtn = document.getElementById("addEventBtn");
     const eventModal = document.getElementById("eventModal");
-    const saveLocalBtn = document.getElementById("saveEventLocalBtn");
-    const saveGoogleBtn = document.getElementById("saveEventGoogleBtn");
 
     const titleInput = document.getElementById("eventTitle");
     const dateInput = document.getElementById("eventDate");
@@ -274,43 +218,28 @@ function initEventsUI() {
         eventModal.style.display = "block";
     });
 
-    saveLocalBtn.addEventListener("click", () => {
+    document.getElementById("saveEventLocalBtn").addEventListener("click", () => {
         const title = titleInput.value.trim();
         const date = dateInput.value;
         const time = timeInput.value;
 
-        if (!title || !date) {
-            alert("Podaj tytuł i datę.");
-            return;
-        }
+        if (!title || !date) return alert("Podaj tytuł i datę.");
 
         const events = loadLocalEvents();
-        events.push({
-            title,
-            date,
-            time,
-            createdAt: new Date().toISOString()
-        });
+        events.push({ title, date, time });
         localStorage.setItem(LOCAL_STORAGE_EVENTS_KEY, JSON.stringify(events));
 
         eventModal.style.display = "none";
         refreshAllEventsView();
     });
 
-    saveGoogleBtn.addEventListener("click", async () => {
+    document.getElementById("saveEventGoogleBtn").addEventListener("click", async () => {
         const title = titleInput.value.trim();
         const date = dateInput.value;
         const time = timeInput.value;
 
-        if (!title || !date) {
-            alert("Podaj tytuł i datę.");
-            return;
-        }
-
-        if (!googleAccessToken) {
-            alert("Najpierw połącz się z Google Calendar.");
-            return;
-        }
+        if (!title || !date) return alert("Podaj tytuł i datę.");
+        if (!googleAccessToken) return alert("Najpierw połącz się z Google Calendar.");
 
         const startDateTime = time ? `${date}T${time}:00` : `${date}T00:00:00`;
         const endDateTime = time ? `${date}T${time}:00` : `${date}T23:59:59`;
@@ -334,17 +263,14 @@ function initEventsUI() {
                 }
             );
 
-            if (!response.ok) {
-                alert("Nie udało się zapisać wydarzenia w Google Calendar.");
-                return;
-            }
+            if (!response.ok) return alert("Nie udało się zapisać wydarzenia w Google Calendar.");
 
             alert("Wydarzenie zapisane w Google Calendar!");
             eventModal.style.display = "none";
             refreshAllEventsView();
 
-        } catch (e) {
-            alert("Wystąpił błąd podczas zapisywania wydarzenia.");
+        } catch {
+            alert("Błąd podczas zapisywania wydarzenia.");
         }
     });
 
@@ -395,10 +321,7 @@ window.connectGoogleCalendar = connectGoogleCalendar;
 // ===============================
 
 async function fetchGoogleEvents(localEvents = []) {
-    if (!googleAccessToken) {
-        renderEvents(localEvents);
-        return;
-    }
+    if (!googleAccessToken) return renderEvents(localEvents);
 
     try {
         const now = new Date().toISOString();
@@ -409,63 +332,23 @@ async function fetchGoogleEvents(localEvents = []) {
         const response = await fetch(
             `https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&timeMin=${now}&timeMax=${threeDaysLater.toISOString()}`,
             {
-                headers: {
-                    Authorization: `Bearer ${googleAccessToken}`
-                }
+                headers: { Authorization: `Bearer ${googleAccessToken}` }
             }
         );
 
         const data = await response.json();
-
-        if (!data.items) {
-            renderEvents(localEvents);
-            return;
-        }
+        if (!data.items) return renderEvents(localEvents);
 
         const googleEvents = data.items.map(ev => ({
             ...ev,
             source: "google"
         }));
 
-        const all = [...googleEvents, ...localEvents];
-        renderEvents(all);
+        renderEvents([...googleEvents, ...localEvents]);
 
-    } catch (error) {
+    } catch {
         renderEvents(localEvents);
     }
-}
-
-
-// ===============================
-//  FILTROWANIE – 3 DNI
-// ===============================
-
-function filterEventsForNext3Days(events) {
-    const now = new Date();
-
-    const threeDaysLater = new Date();
-    threeDaysLater.setDate(now.getDate() + 3);
-    threeDaysLater.setHours(23, 59, 59, 999);
-
-    return events
-        .filter(event => {
-            const start = event.start.dateTime
-                ? new Date(event.start.dateTime)
-                : new Date(event.start.date + "T12:00:00");
-
-            return start >= now && start <= threeDaysLater;
-        })
-        .sort((a, b) => {
-            const aDate = a.start.dateTime
-                ? new Date(a.start.dateTime)
-                : new Date(a.start.date + "T12:00:00");
-
-            const bDate = b.start.dateTime
-                ? new Date(b.start.dateTime)
-                : new Date(b.start.date + "T12:00:00");
-
-            return aDate - bDate;
-        });
 }
 
 
@@ -473,10 +356,22 @@ function filterEventsForNext3Days(events) {
 //  RENDEROWANIE WYDARZEŃ
 // ===============================
 
+function refreshAllEventsView() {
+    const localEvents = loadLocalEvents().map(ev => ({
+        source: "local",
+        summary: ev.title,
+        start: {
+            dateTime: ev.time ? `${ev.date}T${ev.time}:00` : null,
+            date: ev.date
+        }
+    }));
+
+    if (googleAccessToken) fetchGoogleEvents(localEvents);
+    else renderEvents(localEvents);
+}
+
 function renderEvents(events) {
     const container = document.getElementById("eventsList");
-    if (!container) return;
-
     container.innerHTML = "";
 
     if (!events.length) {
