@@ -7,6 +7,9 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <link rel="stylesheet" href="style2.css">
+
+    <!-- Google Identity Services (OAuth 2.0 w przeglądarce) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <div class="app">
@@ -38,8 +41,16 @@
 
         <section class="card">
             <h2>📅 Nadchodzące wydarzenia</h2>
+
+            <button id="googleConnectBtn" class="google-btn">
+                🔵 Połącz z Google Calendar
+            </button>
+
             <div id="eventsList">Ładowanie wydarzeń...</div>
-            <button id="addEventBtn" class="edit-btn">+ Dodaj wydarzenie</button>
+
+            <button id="addEventBtn" class="edit-btn">
+                + Dodaj wydarzenie
+            </button>
         </section>
     </div>
 
@@ -78,11 +89,18 @@
             <label>Godzina</label>
             <input id="eventTime" type="time">
 
-            <button id="saveEventBtn">Zapisz</button>
+            <div class="event-buttons-row">
+                <button id="saveEventLocalBtn" class="event-btn local">
+                    🟡 Zapisz lokalnie
+                </button>
+                <button id="saveEventGoogleBtn" class="event-btn google">
+                    🔵 Zapisz w Google
+                </button>
+            </div>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="app.js"></script>
 </body>
-</html> 
+</html>
