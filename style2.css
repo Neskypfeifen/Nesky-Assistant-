@@ -1,203 +1,548 @@
-* {
+/* ===========================
+   RESET + BAZA
+   =========================== */
+
+*,
+*::before,
+*::after {
     box-sizing: border-box;
+}
+
+html, body {
     margin: 0;
     padding: 0;
-    font-family: system-ui, sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    background: #0f172a;
+    color: #0f172a;
 }
 
 body {
-    background: #f3f4f6;
-    color: #111827;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    background: radial-gradient(circle at top, #1e293b 0, #020617 55%, #000 100%);
 }
 
-body.dark {
-    background: #020617;
-    color: #e5e7eb;
+/* ===========================
+   ZMIENNE
+   =========================== */
+
+:root {
+    --bg-main: #020617;
+    --bg-card: rgba(15, 23, 42, 0.96);
+    --bg-card-soft: rgba(15, 23, 42, 0.9);
+    --bg-elevated: rgba(15, 23, 42, 0.98);
+    --border-subtle: rgba(148, 163, 184, 0.25);
+    --accent: #38bdf8;
+    --accent-soft: rgba(56, 189, 248, 0.15);
+    --accent-strong: #0ea5e9;
+    --accent-gradient: linear-gradient(135deg, #38bdf8, #6366f1);
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.85);
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-pill: 999px;
+    --transition-fast: 0.18s ease-out;
+    --transition-med: 0.25s ease-out;
 }
+
+/* tryb jasny opcjonalnie – na przyszłość */
+body.light {
+    --bg-main: #f3f4f6;
+    --bg-card: #ffffff;
+    --bg-card-soft: #f9fafb;
+    --bg-elevated: #ffffff;
+    --border-subtle: rgba(148, 163, 184, 0.35);
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #6b7280;
+    background: radial-gradient(circle at top, #e5e7eb 0, #f9fafb 40%, #e5e7eb 100%);
+}
+
+/* ===========================
+   GŁÓWNY CONTAINER
+   =========================== */
 
 .app {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 16px;
+    width: 100%;
+    max-width: 420px;
+    margin: 24px 12px;
+    padding: 18px 16px 22px;
+    border-radius: 26px;
+    background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%),
+                radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.12), transparent 55%),
+                rgba(15, 23, 42, 0.96);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    backdrop-filter: blur(26px);
+    color: var(--text-primary);
 }
+
+/* ===========================
+   NAGŁÓWEK
+   =========================== */
 
 .app-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.app-header h1 {
+    font-size: 1.4rem;
+    letter-spacing: 0.04em;
+    font-weight: 650;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.app-header h1::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: var(--accent-gradient);
+    box-shadow: 0 0 18px rgba(56, 189, 248, 0.9);
 }
 
 .theme-toggle {
     border: none;
-    background: #e5e7eb;
+    outline: none;
+    width: 34px;
+    height: 34px;
     border-radius: 999px;
-    padding: 6px 10px;
+    background: rgba(15, 23, 42, 0.9);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.35);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
 }
 
-.card {
-    background: white;
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+.theme-toggle:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 1px var(--accent), 0 10px 25px rgba(15, 23, 42, 0.9);
+    background: rgba(15, 23, 42, 1);
 }
 
-body.dark .card {
-    background: #020617;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.6);
-}
+/* ===========================
+   WYSZUKIWARKA
+   =========================== */
 
 .search-section {
     display: flex;
-    gap: 6px;
-    margin-bottom: 12px;
+    gap: 8px;
+    margin-bottom: 16px;
 }
 
-.search-section input {
+#searchInput {
     flex: 1;
-    padding: 8px 10px;
-    border-radius: 999px;
-    border: 1px solid #d1d5db;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    padding: 9px 12px;
+    font-size: 0.9rem;
+    background: rgba(15, 23, 42, 0.9);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+#searchInput::placeholder {
+    color: var(--text-muted);
+}
+
+#searchInput:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.7);
+    background: rgba(15, 23, 42, 1);
 }
 
 .search-section button {
-    padding: 8px 12px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     border: none;
-    background: #2563eb;
-    color: white;
+    padding: 0 14px;
+    font-size: 1rem;
+    background: var(--accent-gradient);
+    color: #0b1120;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(56, 189, 248, 0.45);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
 }
 
-/* MODAL OGÓLNY (ONBOARDING + WYDARZENIA) */
+.search-section button:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+    box-shadow: 0 14px 32px rgba(56, 189, 248, 0.6);
+}
+
+/* ===========================
+   KARTY (SEKCJE)
+   =========================== */
+
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 12px 12px 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.75);
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%);
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.card h2 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ===========================
+   POGODA
+   =========================== */
+
+#weather {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+#weather p {
+    margin: 2px 0;
+}
+
+/* ===========================
+   MAPA
+   =========================== */
+
+#map {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid rgba(30, 64, 175, 0.6);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.9);
+}
+
+/* ===========================
+   NAWIGACJA – PREMIUM
+   =========================== */
+
+#navControls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.nav-place-btn {
+    width: 100%;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%),
+                rgba(15, 23, 42, 0.95);
+    color: var(--text-primary);
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.nav-place-btn::before {
+    content: "📍";
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+.nav-place-btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--accent);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.9);
+    background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 55%),
+                rgba(15, 23, 42, 1);
+}
+
+/* przycisk edycji miejsc */
+
+.edit-btn {
+    margin-top: 4px;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    background: rgba(15, 23, 42, 0.9);
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.edit-btn:hover {
+    background: rgba(15, 23, 42, 1);
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+}
+
+/* ===========================
+   GOOGLE CALENDAR – PRZYCISK
+   =========================== */
+
+.card button[onclick*="connectGoogleCalendar"] {
+    width: 100%;
+    border-radius: var(--radius-pill);
+    border: none;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background: var(--accent-gradient);
+    color: #0b1120;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 12px 30px rgba(56, 189, 248, 0.6);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+}
+
+.card button[onclick*="connectGoogleCalendar"]::before {
+    content: "🗓️";
+    font-size: 1rem;
+}
+
+.card button[onclick*="connectGoogleCalendar"]:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+    box-shadow: 0 16px 40px rgba(56, 189, 248, 0.8);
+}
+
+/* ===========================
+   WYDARZENIA – LISTA PREMIUM
+   =========================== */
+
+#eventsList {
+    margin-top: 4px;
+}
+
+.event-item {
+    background: var(--bg-elevated);
+    padding: 9px 11px;
+    margin: 6px 0;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.9);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.event-item strong {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.event-time {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.event-source {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* przycisk + Dodaj wydarzenie */
+
+#addEventBtn {
+    margin-top: 8px;
+    width: 100%;
+    border-radius: var(--radius-pill);
+    border: 1px dashed rgba(148, 163, 184, 0.7);
+    background: rgba(15, 23, 42, 0.9);
+    color: var(--text-secondary);
+    padding: 7px 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+#addEventBtn::before {
+    content: "➕";
+    font-size: 0.9rem;
+}
+
+#addEventBtn:hover {
+    border-style: solid;
+    border-color: var(--accent);
+    background: rgba(15, 23, 42, 1);
+    color: var(--accent);
+    transform: translateY(-1px);
+}
+
+/* ===========================
+   MODALE
+   =========================== */
+
 .modal {
+    display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    justify-content: center;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(18px);
+    z-index: 50;
     align-items: center;
-    z-index: 99999 !important;
+    justify-content: center;
 }
 
 .modal-content {
-    background: white;
-    padding: 16px;
-    border-radius: 12px;
+    background: var(--bg-card-soft);
+    border-radius: 20px;
+    padding: 16px 16px 14px;
     width: 90%;
-    max-width: 420px;
+    max-width: 380px;
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    box-shadow: 0 22px 55px rgba(15, 23, 42, 0.95);
+    color: var(--text-primary);
 }
 
-body.dark .modal-content {
-    background: #020617;
-    color: #e5e7eb;
+.modal-content h2 {
+    margin: 0 0 10px;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.modal-content label {
+    display: block;
+    margin-top: 8px;
+    margin-bottom: 3px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
 }
 
 .modal-content input {
     width: 100%;
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
-    margin-bottom: 6px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    padding: 7px 9px;
+    font-size: 0.85rem;
+    background: rgba(15, 23, 42, 0.9);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
 }
 
-.modal-content button {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: #2563eb;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
+.modal-content input::placeholder {
+    color: var(--text-muted);
 }
 
-.edit-btn {
-    margin-top: 10px;
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: #475569;
-    color: white;
-    cursor: pointer;
+.modal-content input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.7);
+    background: rgba(15, 23, 42, 1);
 }
 
-/* WYDARZENIA */
-#eventsList {
-    margin-top: 6px;
-    margin-bottom: 10px;
-    line-height: 1.5;
-}
+/* przyciski w modalu wydarzeń */
 
-.event-item {
-    padding: 6px 0;
-    border-bottom: 1px solid #e5e7eb;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.event-item:last-child {
-    border-bottom: none;
-}
-
-.event-meta {
-    font-size: 12px;
-    color: #6b7280;
-}
-
-/* PRZYCISK GOOGLE CALENDAR */
-.google-btn {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: #1d4ed8;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    margin-bottom: 8px;
-}
-
-/* MODAL WYDARZENIA – DWA PRZYCISKI */
 .event-buttons-row {
     display: flex;
     gap: 8px;
-    margin-top: 8px;
+    margin-top: 12px;
 }
 
 .event-btn {
     flex: 1;
-    padding: 10px;
-    border-radius: 8px;
+    border-radius: var(--radius-pill);
     border: none;
+    padding: 7px 10px;
+    font-size: 0.85rem;
     cursor: pointer;
-    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
 }
 
 .event-btn.local {
-    background: #f59e0b;
-    color: #111827;
+    background: rgba(250, 204, 21, 0.12);
+    color: #facc15;
+    border: 1px solid rgba(250, 204, 21, 0.6);
+    box-shadow: 0 10px 26px rgba(161, 98, 7, 0.5);
 }
 
 .event-btn.google {
-    background: #1d4ed8;
-    color: white;
+    background: rgba(56, 189, 248, 0.12);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.7);
+    box-shadow: 0 10px 26px rgba(37, 99, 235, 0.6);
 }
 
-/* DARK MODE DODATKI */
-body.dark .google-btn {
-    background: #2563eb;
+.event-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
 }
 
-body.dark .event-btn.local {
-    background: #fbbf24;
-    color: #111827;
+/* przycisk zapisu miejsc w modalu */
+
+#saveUserData {
+    margin-top: 12px;
+    width: 100%;
+    border-radius: var(--radius-pill);
+    border: none;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    background: var(--accent-gradient);
+    color: #0b1120;
+    font-weight: 600;
+    box-shadow: 0 14px 32px rgba(56, 189, 248, 0.7);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
 }
 
-body.dark .event-btn.google {
-    background: #2563eb;
+#saveUserData:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+
+/* ===========================
+   DROBNE
+   =========================== */
+
+p {
+    margin: 0;
+}
+
+button {
+    font-family: inherit;
 }
